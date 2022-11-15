@@ -12,3 +12,7 @@
 /frontend/npm-debug.log*
 /frontend/yarn-debug.log*
 /frontend/yarn-error.log*
+
+#BACKEND
+/backend/node_modules
+/backend/.env
