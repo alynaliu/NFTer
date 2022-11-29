@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Browse from "./Browse"
 import ConnectWallet from "./ConnectWallet"
+import Login from "./Login";
 
 import {
   BrowserRouter as Router,
@@ -16,6 +17,7 @@ function App (){
         <Routes>
           <Route path="/Browse" element={<Browse/>}/>
           <Route path="/ConnectWallet" element={<ConnectWallet/>}/>
+          <Route path="/login" element={<Login/>}/>
         </Routes>
       </Router>
     );
