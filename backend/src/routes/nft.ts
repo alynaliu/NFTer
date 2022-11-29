@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express'
 
 import { verifySignature } from '../config/authenticate'
 import { getNFTMetadata, verifyNFTHolder } from '../config/blockchain'
-import { Listings } from '../models/listing'
+import { ArchivedListings, Listings } from '../models/listing'
 
 export module NFT {
     export const router = express.Router();
@@ -35,7 +35,7 @@ export module NFT {
      * TODO: If transferring, transfer the NFT from the owner's wallet to the escrow wallet.
      */
     router.post('/listing', verifySignature, async (req: Request, res: Response) => {
-        const { publicAddress } = req.query
+        const { publicAddress } = req.query;
         const { blockchain, tokenID, contractAddress, rentalRate, maxRentalPeriod } = req.body;
     
         const verifiedHolder = await verifyNFTHolder(publicAddress as string, blockchain, contractAddress, tokenID);
@@ -65,7 +65,19 @@ export module NFT {
      * PURPOSE: Edits a single NFT rental listing
      */
     router.put('/listing', verifySignature, async (req: Request, res: Response) => {
+        const { publicAddress } = req.query;
+        const { listingID, description, rentalRate, maxRentalPeriod } = req.body;
+        
+        const listing = await Listings.findOne({ _id: listingID });
+        if(!listing || listing?.ownerPublicAddress !== publicAddress)
+            return res.sendStatus(401);
 
+        if(description)     listing.description = description;
+        if(rentalRate)      listing.rentalRate = rentalRate;
+        if(maxRentalPeriod) listing.maxRentalPeriod = maxRentalPeriod;
+        await listing.save();
+
+        return res.sendStatus(200);
     });
 
     /**
@@ -73,7 +85,17 @@ export module NFT {
      * TODO: If using an internal wallet as a third party escrow, return the NFT. Wait until rental ends if rented.
      */
     router.delete('/listing', verifySignature, async (req: Request, res: Response) => {
+        const { publicAddress, listingID } = req.query;
 
+        const listing = await Listings.findOne({ _id: listingID });
+        if(!listing || listing?.ownerPublicAddress !== publicAddress)
+            return res.sendStatus(401);
+        
+        const archivedListing = new ArchivedListings(listing.toJSON());
+        await archivedListing.save();
+        await listing.remove();
+
+        return res.sendStatus(200);
     });
 
     /**
