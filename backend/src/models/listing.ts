@@ -1,17 +1,37 @@
 import mongoose from 'mongoose'
 
 const Schema = new mongoose.Schema({
-    image: {
+    blockchain: {
         type: String,
-        required: false
+        requried: true
     },
     name: {
         type: String,
         required: true
     },
-    description: {
+    tokenID: {
         type: String,
         required: true
+    },
+    tokenUrl: {
+        type: String,
+        required: true
+    },
+    imageUrl: {
+        type: String,
+        required: false
+    },
+    contractType: {
+        type: String,
+        required: true
+    },
+    contractAddress: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String,
+        required: false
     },
     ownerPublicAddress: {
         type: String,
@@ -19,7 +39,8 @@ const Schema = new mongoose.Schema({
     },
     available: {
         type: Boolean,
-        required: true
+        required: true,
+        default: true
     },
     rentalRate: {
         type: Number,

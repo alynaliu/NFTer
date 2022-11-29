@@ -39,3 +39,23 @@ export async function getUserNFTs(wallet: string, chain: string, contract: strin
         throw new Error("Blockchain not supported by this app.");
     }
 }
+
+export async function getNFTMetadata(chain: string, contract: string, tokenID: string) {
+    if(isOfTypeBlockchain(chain)) {
+        const result = await provider.getNFTMetadata({
+            blockchain: chain,
+            contractAddress: contract,
+            tokenId: tokenID
+        })
+        return result;
+    }
+    else {
+        throw new Error("Blockchain not supported by this app.");
+    }
+}
+
+export async function verifyNFTHolder(wallet: string, chain: string, contract: string, tokenID: string) {
+    const nfts = await getUserNFTs(wallet, chain, contract);
+    const result = nfts.filter((obj) => obj.tokenId === tokenID);
+    return result.length > 0;
+}

@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express'
 
 import { verifySignature } from '../config/authenticate'
+import { getNFTMetadata, verifyNFTHolder } from '../config/blockchain'
 import { Listings } from '../models/listing'
 
 export module NFT {
@@ -29,10 +30,35 @@ export module NFT {
 
     /**
      * PURPOSE: Creates a single NFT rental listing
+     * TODO: Make sure the NFT being added is ERC-4907 compliant.
      * TODO: Go into the blockchain and clear all future rentals
+     * TODO: If transferring, transfer the NFT from the owner's wallet to the escrow wallet.
      */
     router.post('/listing', verifySignature, async (req: Request, res: Response) => {
+        const { publicAddress } = req.query
+        const { blockchain, tokenID, contractAddress, rentalRate, maxRentalPeriod } = req.body;
+    
+        const verifiedHolder = await verifyNFTHolder(publicAddress as string, blockchain, contractAddress, tokenID);
         
+        if(verifiedHolder === false)
+            return res.sendStatus(401);
+
+        const nftMetadata = await getNFTMetadata(blockchain, contractAddress, tokenID);
+        await new Listings({
+            blockchain: blockchain,
+            name: nftMetadata.attributes?.name,
+            tokenID: tokenID,
+            tokenUrl: nftMetadata.attributes?.tokenUrl,
+            imageUrl: nftMetadata.attributes?.imageUrl,
+            contractType: nftMetadata.metadata?.contractType,
+            contractAddress: contractAddress,
+            description: nftMetadata.attributes?.description,
+            ownerPublicAddress: publicAddress,
+            rentalRate: rentalRate,
+            maxRentalPeriod: maxRentalPeriod
+        }).save();
+
+        return res.sendStatus(200);
     });
     
     /**
