@@ -26,21 +26,11 @@ function Browse() {
         <thead>
           <tr>
             <th key="name">Name</th>
-
-            <th key="description">Description</th>
-
-            <th key="ownerPublicAddress">Owner's Address</th>
-
-            <th key="available">Available</th>
-
-            <th key="rentalRate">Rental Rate</th>
-
-            <th key="maxRentalPeriod">Max Rental Period</th>
           </tr>
         </thead>
         <tbody>
           {
-            listings.map((list, index) => 
+            listings.map((list, index) =>
               <tr>
                 <td>{list.name}</td>
               </tr>
