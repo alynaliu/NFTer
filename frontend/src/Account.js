@@ -8,17 +8,21 @@ function Account() {
     const [isAuthenticated, setAuthenticated] = useState();
     const [account, setAccount] = useState();
 
+    // check if user is logged into a metamask account, otherwise forward them to login page
     useEffect(() => {
         window.ethereum.request({ method: 'eth_accounts' })
             .then((accounts) => {
                 if (accounts.length > 0) {
                     setAuthenticated(true);
-                    //navigate("/")
+                    setAccount(accounts[0]);
+                }
+                else {
+                    navigate("/login")
                 }
             });
     }, []);
 
-    // returns all nfts listed by an account
+    // returns all nfts listed by an account, to be checked later
     useEffect(() => {
         if (isAuthenticated && account !== undefined) {
             axios
@@ -36,21 +40,6 @@ function Account() {
     }, [account]);
 
     async function submit() {
-        /*
-        axios.post('/api/nft/listing', {
-            blockchain: 'polygon',
-            contractAddress: '0x622d8fea4603ba9edaf1084b407052d8b0a9bed7',
-            tokenID: '1000633',
-            publicAddress: '0x96a16f15Ea9204b3742156af19649DBfdAFd7B16'
-        }, {
-            params: {
-                publicAddress: publicAddress,
-                signature: signature
-            }
-        })
-            .then((res) => {
-                console.log(res.data)
-            });*/
         
         // if there is more than 1 account linked, then the user is authorized 
         await window.ethereum.request({ method: 'eth_requestAccounts' })
@@ -71,7 +60,7 @@ function Account() {
                     console.error(error);
                 }
             });
-        const [publicAddress, signature] = await authenticateAction(navigate);
+        //const [publicAddress, signature] = await authenticateAction(navigate);
     }
 
     return (
