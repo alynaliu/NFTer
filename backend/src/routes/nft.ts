@@ -101,7 +101,6 @@ export module NFT {
     /**
      * PURPOSE: Create a rental object for a corresponding NFT rental listing and accept payment
      */
-    router.post('rent', verifySignature, async (req: Request, res: Response) => {
-        
+    router.post('rent', verifySignature, async (req: Request, res: Response) => {     
     });
 }
