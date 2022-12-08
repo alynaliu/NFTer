@@ -10,7 +10,7 @@ const Schema = new mongoose.Schema({
         required: true
     },
     tokenID: {
-        type: String,
+        type: Number,
         required: true
     },
     tokenUrl: {
@@ -50,6 +50,10 @@ const Schema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 30
+    },
+    transactionHash: {
+        type: String,
+        required: true
     }
 })
 

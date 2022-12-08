@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import { Database } from './config/db'
 import { Account } from './routes/account'
 import { NFT } from './routes/nft'
+import { BlockchainWorker } from './contracts/worker'
 
 dotenv.config();
 Database.connect();
@@ -19,3 +20,5 @@ app.use('/api/nft', NFT.router);
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`)
 })
+
+BlockchainWorker();

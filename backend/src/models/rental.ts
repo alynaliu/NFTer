@@ -7,10 +7,14 @@ const Schema = new mongoose.Schema({
     },
     rentedFrom: {
         type: Date,
-        required: true
+        required: false
     },
     rentedUntil: {
         type: Date,
+        required: false
+    },
+    days: {
+        type: Number,
         required: true
     },
     renterPublicAddress: {

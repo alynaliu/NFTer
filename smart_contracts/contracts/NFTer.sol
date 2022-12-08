@@ -8,13 +8,13 @@ import "./IERC4907.sol";
 
 contract NFTer is Ownable, IERC721Receiver 
 {
-    event ReceivedERC721NFT(address indexed operator, address indexed from, uint256 tokenId, bytes data);
+    event ReceivedERC721NFT(address indexed operator, address indexed from, uint256 tokenId);
     event ReceivedETH(address indexed from, uint256 amount);
 
     //Need this function to receive ERC-721 NFTs
     function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data) external virtual override returns (bytes4)
     {
-        emit ReceivedERC721NFT(operator, from, tokenId, data);
+        emit ReceivedERC721NFT(operator, from, tokenId);
         return IERC721Receiver.onERC721Received.selector;
     }
 
@@ -43,5 +43,9 @@ contract NFTer is Ownable, IERC721Receiver
 
     function payOwner(address payable _to, uint _amount) external onlyOwner {
         _to.transfer(_amount);
+    }
+
+    function getTime() public view returns (uint256) {
+        return block.timestamp;
     }
 }

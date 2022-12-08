@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 
 import { verifySignature } from '../config/authenticate'
 import { getNFTMetadata, verifyNFTHolder } from '../config/blockchain'
+import { BlockchainReturnNFT } from '../contracts/worker'
 import { ArchivedListings, Listings, PendingListings } from '../models/listing'
 import { PendingRentals, Rentals } from '../models/rental'
 
@@ -98,6 +99,8 @@ export module NFT {
         await archivedListing.save();
         await listing.remove();
 
+        await BlockchainReturnNFT(archivedListing.contractAddress, archivedListing.tokenID, archivedListing.ownerPublicAddress);
+
         return res.sendStatus(200);
     });
 
@@ -120,14 +123,10 @@ export module NFT {
             return res.sendStatus(400);
         listing.available = false;
         await listing.save();
-
-        const rentedUntil = new Date();
-        rentedUntil.setDate(rentedUntil.getDate() + daysRentedFor);
         
         await new PendingRentals({
             listingID: listingID,
-            rentedFrom: listing.ownerPublicAddress,
-            rentedUntil: rentedUntil,
+            days: daysRentedFor,
             renterPublicAddress: publicAddress,
             transactionHash: transactionHash,
             price: listing.rentalRate * daysRentedFor
