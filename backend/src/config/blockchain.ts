@@ -9,7 +9,7 @@ export async function getUserNFTs(wallet: string, contract: string, nextPageToke
         process.env.WEB3_HTTP_PROVIDER + `/getNFTs?owner=${wallet}&pageSize=20&contractAddresses[]=${contract}&withMetadata=true`;
     
     const results = (await axios.get(url)).data;
-    let nfts = results.ownedNfts.map(x => x.contractMetadata);
+    let nfts = results.ownedNfts;
     if(results.pageKey !== undefined) {
         nfts = nfts.concat(await getUserNFTs(wallet, contract, results.pageKey));
     }

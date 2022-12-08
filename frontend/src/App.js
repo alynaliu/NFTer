@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import Browse from "./Browse"
 import ConnectWallet from "./ConnectWallet"
-import Login from "./Login";
 import CreateNFT from "./CreateNFT";
 import EditNFT from "./EditNFT";
 import Nft  from "./Nft";
@@ -21,7 +20,6 @@ function App (){
         <Routes>
           <Route path="/" element={<Browse/>}/>
           <Route path="/ConnectWallet" element={<ConnectWallet/>}/>
-          <Route path="/login" element={<Login/>}/>
           <Route path="/createnft" element={<CreateNFT/>}/>
           <Route path="/editnft" element={<EditNFT/>}/>
           <Route path="/nft" element={<Nft/>}/>

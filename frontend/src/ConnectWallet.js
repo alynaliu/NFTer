@@ -1,8 +1,8 @@
 import './styles/style.css';
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from './Images/MetaMask_Fox.png';
-import nfter from './Images/NFTer.png';
+import logo from './assets/MetaMask_Fox.png';
+import nfter from './assets/NFTer.png';
 
 function ConnectWallet() {
 
@@ -11,7 +11,7 @@ function ConnectWallet() {
   useEffect(() => {
       window.ethereum.request({ method: 'eth_accounts' })
           .then((accounts) => {
-              if(accounts.length > 0) {
+              if(accounts.length === 0) {
                   console.log('Please connect to MetaMask.');
               }
           })
