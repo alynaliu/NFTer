@@ -1,34 +1,40 @@
 body{
     background-color: black ;
     color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 200px;
 }
 .sign-in{
-    border: 1px solid white;
     width: 100%;
     justify-content: center;
     text-align: center;
-    padding-top: 25vh;
+    padding-top: 20vh;
     font-size: 30px;
+    
 }
 .sign-in button{
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: left;
     margin-right: auto;
     margin-left: auto;
-    position: sticky;
     width: 50%;
-    padding: 3vw;
-    border-radius: 30px;
-    font-size: 50px;
+    padding: 1vw;
+    border-radius: 15px;
+    font-size: 20px;
+    background-color: black;
+    color: white;
+    border-color: grey;
+    max-height: 80px;
+    vertical-align: center;
 }
 
 .sign-in button:hover{
-    background-color: #C3B1E1;
+    background-color: #9884b8;
 }
 .sign-in img{
-    height: 10vh;
+    max-height: 35px;
     text-align: center;
+    margin-right: 25pt;
 }
 .alignleft {
 	float: left;
@@ -82,4 +88,16 @@ body{
     margin-top: 0;
     margin-bottom: 0;
     padding: 0;
+}
+
+.footer{
+    display: flex;
+    position: absolute;
+    flex-direction: column;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    margin-top: auto;
+    background-color: black;
+    text-align: center;
 }
