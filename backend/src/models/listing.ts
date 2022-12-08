@@ -10,7 +10,7 @@ const Schema = new mongoose.Schema({
         required: true
     },
     tokenID: {
-        type: String,
+        type: Number,
         required: true
     },
     tokenUrl: {
@@ -50,8 +50,13 @@ const Schema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 30
+    },
+    transactionHash: {
+        type: String,
+        required: true
     }
 })
 
 export const ArchivedListings = mongoose.model('ArchivedListing', Schema);
 export const Listings = mongoose.model('Listing', Schema);
+export const PendingListings = mongoose.model('PendingListing', Schema);

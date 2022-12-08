@@ -16,3 +16,9 @@
 #BACKEND
 /backend/node_modules
 /backend/.env
+
+#SMART CONTRACTS
+/smart_contracts/artifacts
+/smart_contracts/cache
+/smart_contracts/node_modules
+/smart_contracts/.env

@@ -2,7 +2,7 @@ import axios from 'axios'
 
 export async function authenticateAction(navigate) {
     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-
+    
     //No active accounts
     if(accounts.length === 0) {
         return navigate('/login');

@@ -102,6 +102,10 @@ body{
     margin-bottom: 0;
     padding: 0;
 }
+.browseImage {
+    height: 75px;
+    width: 75px;
+}
 
 .footer{
     display: flex;
@@ -114,3 +118,28 @@ body{
     background-color: black;
     text-align: center;
 }
+
+.browse{
+    padding: 40px;
+}
+
+.browse table {
+    border-collapse: collapse;
+    margin: auto;
+    max-width: 23%;
+    text-align: center;
+    border-color: white;
+    border-width: 10px;
+}
+.browse button{
+    background-color: black;
+    color: white;
+    border-color: rgb(20, 20, 20);
+    padding: 20px;
+    font-family: 'Montserrat', sans-serif;
+    margin-right: 5px;
+}
+.browse button:hover {
+    background-color: #1f1e1e
+}
+
