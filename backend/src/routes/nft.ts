@@ -13,8 +13,10 @@ export module NFT {
      * TODO: Add pagination for infinite scrolling by returning an ID to start querying from.
      */
     router.get('/listings', async (req: Request, res: Response) => {
-        const { available } = req.query;
-        const listings = await Listings.find({available: available}, 'image name').lean();
+        const { available, publicAddress } = req.query;
+        const listings = publicAddress == undefined ? 
+            await Listings.find({available: available}, 'imageUrl name').lean() : 
+            await Listings.find({ownerPublicAddress: publicAddress}, 'imageUrl name').lean();
         return res.send(listings);
     });
 
@@ -32,7 +34,7 @@ export module NFT {
      * PURPOSE: Creates a single NFT rental listing
      * TODO: Make sure the NFT being added is ERC-4907 compliant.
      * TODO: Go into the blockchain and clear all future rentals
-     * TODO: If transferring, transfer the NFT from the owner's wallet to the escrow wallet.
+     * TODO: Transfer the NFT from the owner's wallet to the escrow wallet.
      */
     router.post('/listing', verifySignature, async (req: Request, res: Response) => {
         const { publicAddress } = req.query;
@@ -58,6 +60,7 @@ export module NFT {
             maxRentalPeriod: maxRentalPeriod
         }).save();
 
+        //Check if the thing is 4907 compliant. Send the nft from the wallet to the escrow wallet.
         return res.sendStatus(200);
     });
     
