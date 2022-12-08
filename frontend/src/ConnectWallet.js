@@ -1,8 +1,42 @@
 import './styles/style.css';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import logo from './Images/MetaMask_Fox.png';
 import nfter from './Images/NFTer.png';
 
 function ConnectWallet() {
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+      window.ethereum.request({ method: 'eth_accounts' })
+          .then((accounts) => {
+              if(accounts.length > 0) {
+                  console.log('Please connect to MetaMask.');
+              }
+          })
+          .catch((error) =>{
+              console.error(error);
+              navigate('/bad-login');
+          });
+  }, []);
+
+  async function submit() {
+      await window.ethereum.request({ method: 'eth_requestAccounts' })
+          .then((accounts) => {
+              if(accounts.length > 0) {
+                  navigate("/")
+              }
+          })
+          .catch((error) => {
+              if (error.code === 4001) {
+                  // EIP-1193 userRejectedRequest error
+                  console.log('Please connect to MetaMask.');
+              } else {
+                  console.error(error);
+              }
+          });
+  }
     return (
       <div>
         <img src ={nfter} alt ="NFTer"/>
@@ -25,6 +59,5 @@ function ConnectWallet() {
       </div>
     );
   }
-  
+
   export default ConnectWallet;
-  

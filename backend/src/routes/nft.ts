@@ -2,8 +2,9 @@ import express, { Request, Response } from 'express'
 
 import { verifySignature } from '../config/authenticate'
 import { getNFTMetadata, verifyNFTHolder } from '../config/blockchain'
+import { BlockchainReturnNFT } from '../contracts/worker'
 import { ArchivedListings, Listings, PendingListings } from '../models/listing'
-import { PendingRentals } from '../models/rental'
+import { PendingRentals, Rentals } from '../models/rental'
 
 export module NFT {
     export const router = express.Router();
@@ -17,7 +18,7 @@ export module NFT {
         const { available, publicAddress } = req.query;
         const listings = publicAddress == undefined ? 
             await Listings.find({available: available}, 'imageUrl name').lean() : 
-            await Listings.find({ownerPublicAddress: publicAddress}, 'imageUrl name').lean();
+            await Listings.find({ownerPublicAddress: publicAddress}).lean();
         return res.send(listings);
     });
 
@@ -39,26 +40,25 @@ export module NFT {
      */
     router.post('/listing', verifySignature, async (req: Request, res: Response) => {
         const { publicAddress } = req.query;
-        const { blockchain, tokenID, contractAddress, rentalRate, maxRentalPeriod } = req.body;
+        const { tokenID, contractAddress, rentalRate, maxRentalPeriod, transactionHash } = req.body;
     
-        const verifiedHolder = await verifyNFTHolder(publicAddress as string, blockchain, contractAddress, tokenID);
-        
+        const verifiedHolder = await verifyNFTHolder(publicAddress as string, contractAddress, tokenID);
+
         if(verifiedHolder === false)
             return res.sendStatus(401);
 
-        const nftMetadata = await getNFTMetadata(blockchain, contractAddress, tokenID);
+        const nftMetadata = await getNFTMetadata(contractAddress, tokenID);
         await new PendingListings({
-            blockchain: blockchain,
-            name: nftMetadata.attributes?.name,
+            name: nftMetadata.metadata.name,
             tokenID: tokenID,
-            tokenUrl: nftMetadata.attributes?.tokenUrl,
-            imageUrl: nftMetadata.attributes?.imageUrl,
-            contractType: nftMetadata.metadata?.contractType,
+            imageUrl: nftMetadata.media.raw,
+            tokenType: nftMetadata.id.tokenMetadata.tokenType,
             contractAddress: contractAddress,
-            description: nftMetadata.attributes?.description,
+            description: nftMetadata.metadata.description,
             ownerPublicAddress: publicAddress,
             rentalRate: rentalRate,
-            maxRentalPeriod: maxRentalPeriod
+            maxRentalPeriod: maxRentalPeriod,
+            transactionHash: transactionHash
         }).save();
 
         return res.sendStatus(200);
@@ -69,13 +69,12 @@ export module NFT {
      */
     router.put('/listing', verifySignature, async (req: Request, res: Response) => {
         const { publicAddress } = req.query;
-        const { listingID, description, rentalRate, maxRentalPeriod } = req.body;
+        const { listingID, rentalRate, maxRentalPeriod } = req.body;
         
         const listing = await Listings.findOne({ _id: listingID });
         if(!listing || listing?.ownerPublicAddress !== publicAddress)
             return res.sendStatus(401);
 
-        if(description)     listing.description = description;
         if(rentalRate)      listing.rentalRate = rentalRate;
         if(maxRentalPeriod) listing.maxRentalPeriod = maxRentalPeriod;
         await listing.save();
@@ -98,7 +97,16 @@ export module NFT {
         await archivedListing.save();
         await listing.remove();
 
+        await BlockchainReturnNFT(archivedListing.contractAddress, archivedListing.tokenID, archivedListing.ownerPublicAddress);
+
         return res.sendStatus(200);
+    });
+
+    router.get('/rent', verifySignature, async (req: Request, res: Response) => {
+        const { publicAddress } = req.query;
+
+        const rentals = await Rentals.find({renterPublicAddress: publicAddress}).lean();
+        return res.send(rentals);
     });
 
     /**
@@ -113,14 +121,10 @@ export module NFT {
             return res.sendStatus(400);
         listing.available = false;
         await listing.save();
-
-        const rentedUntil = new Date();
-        rentedUntil.setDate(rentedUntil.getDate() + daysRentedFor);
         
         await new PendingRentals({
             listingID: listingID,
-            rentedFrom: listing.ownerPublicAddress,
-            rentedUntil: rentedUntil,
+            days: daysRentedFor,
             renterPublicAddress: publicAddress,
             transactionHash: transactionHash,
             price: listing.rentalRate * daysRentedFor

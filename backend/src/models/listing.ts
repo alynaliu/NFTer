@@ -3,25 +3,22 @@ import mongoose from 'mongoose'
 const Schema = new mongoose.Schema({
     blockchain: {
         type: String,
-        requried: true
+        requried: true,
+        default: 'goerli_eth'
     },
     name: {
         type: String,
         required: true
     },
     tokenID: {
-        type: String,
-        required: true
-    },
-    tokenUrl: {
-        type: String,
+        type: Number,
         required: true
     },
     imageUrl: {
         type: String,
         required: false
     },
-    contractType: {
+    tokenType: {
         type: String,
         required: true
     },
@@ -50,6 +47,10 @@ const Schema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 30
+    },
+    transactionHash: {
+        type: String,
+        required: true
     }
 })
 
