@@ -56,20 +56,22 @@ function Browse() {
       <table className="table">
         <thead>
           <tr>
+            <th></th>
             <th key="name">Name</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           {
             listings.map((list, index) =>
-              <tr key={index}>
-                <td> NFT {index + 1}</td>
-                <td key="name" >{list.name}</td>
-                <td>
+              <tr key={index} style={{width: '20%'}}>
+                <td style={{width: '30%'}}> NFT {index + 1}</td>
+                <td key="name" style={{width: '30%'}} >{list.name}</td>
+                <td style={{width: '30%'}}>
                   <img className='browseImage' src={list.imageUrl} />
                   {console.log(list._id)}
                 </td>
-                <td>
+                <td style={{width: '30%'}}>
                   <button id = {"button" + index} onClick={() => navigate('/nft?id=' + list._id)}> Rent </button>
                 </td>
               </tr>
