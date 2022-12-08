@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express'
 import { verifySignature } from '../config/authenticate'
 import { getNFTMetadata, verifyNFTHolder } from '../config/blockchain'
 import { ArchivedListings, Listings, PendingListings } from '../models/listing'
-import { PendingRentals } from '../models/rental'
+import { PendingRentals, Rentals } from '../models/rental'
 
 export module NFT {
     export const router = express.Router();
@@ -99,6 +99,13 @@ export module NFT {
         await listing.remove();
 
         return res.sendStatus(200);
+    });
+
+    router.get('/rent', verifySignature, async (req: Request, res: Response) => {
+        const { publicAddress } = req.query;
+
+        const rentals = await Rentals.find({renterPublicAddress: publicAddress}).lean();
+        return res.send(rentals);
     });
 
     /**
