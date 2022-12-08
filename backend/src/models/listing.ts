@@ -3,7 +3,8 @@ import mongoose from 'mongoose'
 const Schema = new mongoose.Schema({
     blockchain: {
         type: String,
-        requried: true
+        requried: true,
+        default: 'goerli_eth'
     },
     name: {
         type: String,
@@ -13,15 +14,11 @@ const Schema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    tokenUrl: {
-        type: String,
-        required: true
-    },
     imageUrl: {
         type: String,
         required: false
     },
-    contractType: {
+    tokenType: {
         type: String,
         required: true
     },

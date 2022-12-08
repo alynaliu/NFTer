@@ -36,12 +36,12 @@ export module Account {
      * USAGE: Allow the user to choose which NFT to add as a rental based on blockchain and smart contract
      */
     router.get('/nfts', verifySignature, async (req: Request, res: Response) => {
-        const { publicAddress, chain, contract } = req.query;
-        if(typeof publicAddress !== 'string' || typeof chain !== 'string' || typeof contract !== 'string') {
+        const { publicAddress, contract } = req.query;
+        if(typeof publicAddress !== 'string' || typeof contract !== 'string') {
             return res.sendStatus(400);
         }
         
-        const nfts = await getUserNFTs(publicAddress, chain, contract);
+        const nfts = await getUserNFTs(publicAddress, contract);
         return res.send(nfts);
     });
 }

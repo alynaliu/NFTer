@@ -40,23 +40,21 @@ export module NFT {
      */
     router.post('/listing', verifySignature, async (req: Request, res: Response) => {
         const { publicAddress } = req.query;
-        const { blockchain, tokenID, contractAddress, rentalRate, maxRentalPeriod, transactionHash } = req.body;
+        const { tokenID, contractAddress, rentalRate, maxRentalPeriod, transactionHash } = req.body;
     
-        const verifiedHolder = await verifyNFTHolder(publicAddress as string, blockchain, contractAddress, tokenID);
-        
+        const verifiedHolder = await verifyNFTHolder(publicAddress as string, contractAddress, tokenID);
+
         if(verifiedHolder === false)
             return res.sendStatus(401);
 
-        const nftMetadata = await getNFTMetadata(blockchain, contractAddress, tokenID);
+        const nftMetadata = await getNFTMetadata(contractAddress, tokenID);
         await new PendingListings({
-            blockchain: blockchain,
-            name: nftMetadata.attributes?.name,
+            name: nftMetadata.metadata.name,
             tokenID: tokenID,
-            tokenUrl: nftMetadata.attributes?.tokenUrl,
-            imageUrl: nftMetadata.attributes?.imageUrl,
-            contractType: nftMetadata.metadata?.contractType,
+            imageUrl: nftMetadata.media.raw,
+            tokenType: nftMetadata.id.tokenMetadata.tokenType,
             contractAddress: contractAddress,
-            description: nftMetadata.attributes?.description,
+            description: nftMetadata.metadata.description,
             ownerPublicAddress: publicAddress,
             rentalRate: rentalRate,
             maxRentalPeriod: maxRentalPeriod,
