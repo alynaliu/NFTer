@@ -1,5 +1,5 @@
 body{
-    background-color: black ;
+    background-color: #1E1E1E;
     color: white;
     font-family: 'Montserrat', sans-serif;
     font-weight: 200px;
@@ -47,8 +47,6 @@ body{
     font-size: x-large;
     margin-left: auto;
     margin-right: auto;
-    border:1px solid white;
-    padding: 1vw;
 }
 .nftdisplay img{
     height: 30vh;
@@ -57,17 +55,32 @@ body{
     margin-left: auto;
 }
 .nftdisplay button{
-    width: 50%;
+    width: 100%;
     margin-right: auto;
     margin-left: auto;
+    padding: 1vw;
+    border-radius: 15px;
+    font-size: 20px;
+    color: white;
+    border-color: grey;
+    max-height: 80px;
+    vertical-align: center;
+}
+.available{
+    background-color: #9884b8;
+}
+.unavailable{
+    background-color: black;
 }
 .imageSide{
     width:50%;
     padding: 2%;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 .infoSide{
     width: 50%;
-    padding: 2%;
+    padding: 5vw;
 }
 .infoSide input{
     width: 100%;
