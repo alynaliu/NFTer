@@ -17,10 +17,16 @@ const Schema = new mongoose.Schema({
         type: String,
         required: true
     },
+    transactionHash: {
+        type: String,
+        required: true
+    },
     price: {
         type: Number,
         required: true
     }
 })
 
+export const ArchivedRentals = mongoose.model('ArchivedRental', Schema);
+export const PendingRentals = mongoose.model('PendingRental', Schema);
 export const Rentals = mongoose.model('Rental', Schema);
