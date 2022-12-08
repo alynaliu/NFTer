@@ -9,7 +9,7 @@ import "./IERC4907.sol";
 contract NFTer is Ownable, IERC721Receiver 
 {
     event ReceivedERC721NFT(address indexed operator, address indexed from, uint256 tokenId, bytes data);
-    event ReceivedETH(address indexed from, uint256 amount, bytes data);
+    event ReceivedETH(address indexed from, uint256 amount);
 
     //Need this function to receive ERC-721 NFTs
     function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data) external virtual override returns (bytes4)
@@ -19,12 +19,15 @@ contract NFTer is Ownable, IERC721Receiver
     }
 
     //Need this to receive ETH with no msg.data
-    receive() external payable {}
+    receive() external payable
+    {
+        emit ReceivedETH(msg.sender, msg.value);
+    }
 
     //Need this to receive ETH with msg.data
     fallback() external payable
     {
-        emit ReceivedETH(msg.sender, msg.value, msg.data);
+        emit ReceivedETH(msg.sender, msg.value);
     }
 
     function rentNFT(address contractAddress, uint256 tokenId, address renterAddress, uint64 expires) external onlyOwner
