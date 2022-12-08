@@ -10,6 +10,10 @@ function Login() {
                 if(accounts.length > 0) {
                     navigate("/")
                 }
+            })
+            .catch((error) =>{
+                console.error(error);
+                navigate('/bad-login');
             });
     }, []);
 

@@ -55,3 +55,4 @@ const Schema = new mongoose.Schema({
 
 export const ArchivedListings = mongoose.model('ArchivedListing', Schema);
 export const Listings = mongoose.model('Listing', Schema);
+export const PendingListings = mongoose.model('PendingListing', Schema);

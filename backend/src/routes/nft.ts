@@ -2,7 +2,8 @@ import express, { Request, Response } from 'express'
 
 import { verifySignature } from '../config/authenticate'
 import { getNFTMetadata, verifyNFTHolder } from '../config/blockchain'
-import { ArchivedListings, Listings } from '../models/listing'
+import { ArchivedListings, Listings, PendingListings } from '../models/listing'
+import { PendingRentals, Rentals } from '../models/rental'
 
 export module NFT {
     export const router = express.Router();
@@ -13,8 +14,10 @@ export module NFT {
      * TODO: Add pagination for infinite scrolling by returning an ID to start querying from.
      */
     router.get('/listings', async (req: Request, res: Response) => {
-        const { available } = req.query;
-        const listings = await Listings.find({available: available}, 'image name').lean();
+        const { available, publicAddress } = req.query;
+        const listings = publicAddress == undefined ? 
+            await Listings.find({available: available}, 'imageUrl name').lean() : 
+            await Listings.find({ownerPublicAddress: publicAddress}).lean();
         return res.send(listings);
     });
 
@@ -32,7 +35,7 @@ export module NFT {
      * PURPOSE: Creates a single NFT rental listing
      * TODO: Make sure the NFT being added is ERC-4907 compliant.
      * TODO: Go into the blockchain and clear all future rentals
-     * TODO: If transferring, transfer the NFT from the owner's wallet to the escrow wallet.
+     * TODO: Transfer the NFT from the owner's wallet to the escrow wallet.
      */
     router.post('/listing', verifySignature, async (req: Request, res: Response) => {
         const { publicAddress } = req.query;
@@ -44,7 +47,7 @@ export module NFT {
             return res.sendStatus(401);
 
         const nftMetadata = await getNFTMetadata(blockchain, contractAddress, tokenID);
-        await new Listings({
+        await new PendingListings({
             blockchain: blockchain,
             name: nftMetadata.attributes?.name,
             tokenID: tokenID,
@@ -98,10 +101,38 @@ export module NFT {
         return res.sendStatus(200);
     });
 
+    router.get('/rent', verifySignature, async (req: Request, res: Response) => {
+        const { publicAddress } = req.query;
+
+        const rentals = await Rentals.find({renterPublicAddress: publicAddress}).lean();
+        return res.send(rentals);
+    });
+
     /**
      * PURPOSE: Create a rental object for a corresponding NFT rental listing and accept payment
      */
-    router.post('rent', verifySignature, async (req: Request, res: Response) => {
+    router.post('/rent', verifySignature, async (req: Request, res: Response) => {
+        const { publicAddress } = req.query;
+        const { listingID, daysRentedFor, transactionHash } = req.body;
+
+        const listing = await Listings.findOne({_id: listingID}, 'ownerPublicAddress available rentalRate maxRentalPeriod');
+        if(!listing || listing.available == false || daysRentedFor > listing.maxRentalPeriod)
+            return res.sendStatus(400);
+        listing.available = false;
+        await listing.save();
+
+        const rentedUntil = new Date();
+        rentedUntil.setDate(rentedUntil.getDate() + daysRentedFor);
         
+        await new PendingRentals({
+            listingID: listingID,
+            rentedFrom: listing.ownerPublicAddress,
+            rentedUntil: rentedUntil,
+            renterPublicAddress: publicAddress,
+            transactionHash: transactionHash,
+            price: listing.rentalRate * daysRentedFor
+        }).save();
+
+        return res.sendStatus(200);
     });
 }
