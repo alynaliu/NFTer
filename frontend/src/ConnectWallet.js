@@ -1,30 +1,42 @@
 import './styles/style.css';
-import { useEffect } from 'react'
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from './Images/MetaMask_Fox.png';
 import nfter from './Images/NFTer.png';
 
 function ConnectWallet() {
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+      window.ethereum.request({ method: 'eth_accounts' })
+          .then((accounts) => {
+              if(accounts.length > 0) {
+                console.log('Please connect to MetaMask.');
+              }
+          })
+          .catch((error) =>{
+              console.error(error);
+              navigate('/bad-login');
+          });
+  }, []);
+
   async function submit() {
-    const [ publicAddress, signature ] = await authenticateAction(navigate);
-
-    axios.post('/api/nft/listing', { 
-      blockchain: 'polygon',
-      contractAddress: '0x622d8fea4603ba9edaf1084b407052d8b0a9bed7',
-      tokenID: '1000633',
-      publicAddress: '0x96a16f15Ea9204b3742156af19649DBfdAFd7B16'
-    }, {
-      params: {
-        publicAddress: publicAddress,
-        signature: signature
-      }
-    })
-    .then((res) => {
-      console.log(res.data)
-    });
+      await window.ethereum.request({ method: 'eth_requestAccounts' })
+          .then((accounts) => {
+              if(accounts.length > 0) {
+                  navigate("/")
+              }
+          })
+          .catch((error) => {
+              if (error.code === 4001) {
+                  // EIP-1193 userRejectedRequest error
+                  console.log('Please connect to MetaMask.');
+              } else {
+                  console.error(error);
+              }
+          });
   }
-
     return (
       <div>
         <img src ={nfter} alt ="NFTer"/>
