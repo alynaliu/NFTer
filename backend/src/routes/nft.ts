@@ -2,7 +2,8 @@ import express, { Request, Response } from 'express'
 
 import { verifySignature } from '../config/authenticate'
 import { getNFTMetadata, verifyNFTHolder } from '../config/blockchain'
-import { ArchivedListings, Listings } from '../models/listing'
+import { ArchivedListings, Listings, PendingListings } from '../models/listing'
+import { PendingRentals } from '../models/rental'
 
 export module NFT {
     export const router = express.Router();
@@ -46,7 +47,7 @@ export module NFT {
             return res.sendStatus(401);
 
         const nftMetadata = await getNFTMetadata(blockchain, contractAddress, tokenID);
-        await new Listings({
+        await new PendingListings({
             blockchain: blockchain,
             name: nftMetadata.attributes?.name,
             tokenID: tokenID,
@@ -60,7 +61,6 @@ export module NFT {
             maxRentalPeriod: maxRentalPeriod
         }).save();
 
-        //Check if the thing is 4907 compliant. Send the nft from the wallet to the escrow wallet.
         return res.sendStatus(200);
     });
     
@@ -104,7 +104,28 @@ export module NFT {
     /**
      * PURPOSE: Create a rental object for a corresponding NFT rental listing and accept payment
      */
-    router.post('rent', verifySignature, async (req: Request, res: Response) => {
+    router.post('/rent', verifySignature, async (req: Request, res: Response) => {
+        const { publicAddress } = req.query;
+        const { listingID, daysRentedFor, transactionHash } = req.body;
+
+        const listing = await Listings.findOne({_id: listingID}, 'ownerPublicAddress available rentalRate maxRentalPeriod');
+        if(!listing || listing.available == false || daysRentedFor > listing.maxRentalPeriod)
+            return res.sendStatus(400);
+        listing.available = false;
+        await listing.save();
+
+        const rentedUntil = new Date();
+        rentedUntil.setDate(rentedUntil.getDate() + daysRentedFor);
         
+        await new PendingRentals({
+            listingID: listingID,
+            rentedFrom: listing.ownerPublicAddress,
+            rentedUntil: rentedUntil,
+            renterPublicAddress: publicAddress,
+            transactionHash: transactionHash,
+            price: listing.rentalRate * daysRentedFor
+        }).save();
+
+        return res.sendStatus(200);
     });
 }
