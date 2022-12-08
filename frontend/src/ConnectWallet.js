@@ -12,7 +12,7 @@ function ConnectWallet() {
       window.ethereum.request({ method: 'eth_accounts' })
           .then((accounts) => {
               if(accounts.length > 0) {
-                console.log('Please connect to MetaMask.');
+                  console.log('Please connect to MetaMask.');
               }
           })
           .catch((error) =>{
