@@ -17,7 +17,7 @@ export module NFT {
         const { available, publicAddress } = req.query;
         const listings = publicAddress == undefined ? 
             await Listings.find({available: available}, 'imageUrl name').lean() : 
-            await Listings.find({ownerPublicAddress: publicAddress}, 'imageUrl name').lean();
+            await Listings.find({ownerPublicAddress: publicAddress}).lean();
         return res.send(listings);
     });
 
