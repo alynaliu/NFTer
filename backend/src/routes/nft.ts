@@ -39,7 +39,7 @@ export module NFT {
      */
     router.post('/listing', verifySignature, async (req: Request, res: Response) => {
         const { publicAddress } = req.query;
-        const { blockchain, tokenID, contractAddress, rentalRate, maxRentalPeriod } = req.body;
+        const { blockchain, tokenID, contractAddress, rentalRate, maxRentalPeriod, transactionHash } = req.body;
     
         const verifiedHolder = await verifyNFTHolder(publicAddress as string, blockchain, contractAddress, tokenID);
         
@@ -58,7 +58,8 @@ export module NFT {
             description: nftMetadata.attributes?.description,
             ownerPublicAddress: publicAddress,
             rentalRate: rentalRate,
-            maxRentalPeriod: maxRentalPeriod
+            maxRentalPeriod: maxRentalPeriod,
+            transactionHash: transactionHash
         }).save();
 
         return res.sendStatus(200);
@@ -69,13 +70,12 @@ export module NFT {
      */
     router.put('/listing', verifySignature, async (req: Request, res: Response) => {
         const { publicAddress } = req.query;
-        const { listingID, description, rentalRate, maxRentalPeriod } = req.body;
+        const { listingID, rentalRate, maxRentalPeriod } = req.body;
         
         const listing = await Listings.findOne({ _id: listingID });
         if(!listing || listing?.ownerPublicAddress !== publicAddress)
             return res.sendStatus(401);
 
-        if(description)     listing.description = description;
         if(rentalRate)      listing.rentalRate = rentalRate;
         if(maxRentalPeriod) listing.maxRentalPeriod = maxRentalPeriod;
         await listing.save();
