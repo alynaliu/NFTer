@@ -1,5 +1,5 @@
 import './styles/style.css';
-import logo from './Images/MetaMask_Fox.png';
+import logo from './assets/MetaMask_Fox.png';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
