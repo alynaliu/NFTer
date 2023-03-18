@@ -125,7 +125,7 @@ function Account() {
                         <p className='subtle'>Collection</p>
                         <p className='nftName'>{list.name}</p>
                         <hr className='clear'></hr>
-                        <button id = {'edit' + index}> Edit </button>
+                        <button id = {'edit' + index} onClick={() => navigate('/editnft?id=' + list._id)}> Edit </button>
                         <button id = {'delete' + index} onClick={() => remove(list._id)}> Delete </button>
                     </div>
                 </div>
