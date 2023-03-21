@@ -29,7 +29,7 @@ export module NFT {
     router.get('/userhistory', async (req: Request, res: Response) => {
         const { publicAddress } = req.query;
         const rental = await Rentals.find({renterPublicAddress: publicAddress}).lean()
-        if(!rental /*|| rental?.renterPublicAddress !== publicAddress*/)
+        if(!rental)
             return res.sendStatus(401);
         return res.send(rental);
     });
@@ -41,7 +41,7 @@ export module NFT {
     router.get('/nfthistory', async (req: Request, res: Response) => {
         const { id } = req.query;
         const rental = await Rentals.find({listingID: id}).lean()
-        if(!rental /*|| rental?.listingID !== id*/)
+        if(!rental)
             return res.sendStatus(401);
         return res.send(rental);
     });
