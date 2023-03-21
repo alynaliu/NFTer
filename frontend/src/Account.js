@@ -35,7 +35,6 @@ function Account() {
                     },
                 })
                 .then((res) => {
-                    console.log(res.data);
                     let data = res.data;
                     for (let i = 0; i < data.length; i++) {
                         if (data[i].imageUrl === undefined || data[i].imageUrl === null) {
