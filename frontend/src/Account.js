@@ -36,8 +36,8 @@ function Account() {
                 })
                 .then((res) => {
                     console.log(res.data);
-                    var data = res.data;
-                    for (var i = 0; i < data.length; i++) {
+                    let data = res.data;
+                    for (let i = 0; i < data.length; i++) {
                         if (data[i].imageUrl === undefined || data[i].imageUrl === null) {
                             data[i].imageUrl = logo;
                         }
