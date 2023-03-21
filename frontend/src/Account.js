@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import logo from './Images/MetaMask_Fox.png';
+import logo from './assets/MetaMask_Fox.png';
 import { authenticateAction } from './comps/authenticate';
 
 function Account() {
@@ -20,7 +20,7 @@ function Account() {
                     console.log(accounts[0]);
                 }
                 else {
-                    navigate('/bad-login');
+                    alert ("There was an error, please try again");
                 }
             });
     }, []);

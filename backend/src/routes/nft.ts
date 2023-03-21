@@ -121,7 +121,7 @@ export module NFT {
         await archivedListing.save();
         await listing.remove();
 
-        await BlockchainReturnNFT(archivedListing.contractAddress, archivedListing.tokenID, archivedListing.ownerPublicAddress);
+        await BlockchainReturnNFT(archivedListing.contractAddress, archivedListing.tokenID);
 
         return res.sendStatus(200);
     });

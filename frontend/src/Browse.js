@@ -6,7 +6,13 @@ import axios from "axios";
 
 function Browse() {
   const [listings, setListings] = useState([]);
+  const [name, setName] = useState([]);
   const navigate = useNavigate();
+
+
+  const onChangeHandler = event => {
+    setName(event.target.value);
+ };
 
   // fetch the NFTs that are available for rental
   useEffect(() => {
@@ -19,19 +25,20 @@ function Browse() {
       .then((res) => {
         console.log (res.data);
         var data = res.data;
+        var foundData = [];
+        // display everything if search bar is blank, or filter results that user searched for only
         for (var i = 0; i < data.length; i++) {
-          if (data[i].imageUrl === undefined || data[i].imageUrl === null) {
-            console.log("Meow")
-            data[i].imageUrl = logo;
-          }
-          else
+          if(name === "" || data[i].name.toString().toLowerCase().includes(name.toString().toLowerCase()))
           {
-            console.log("Hi");
-          }
+            if (data[i].imageUrl === undefined || data[i].imageUrl === null) {
+              data[i].imageUrl = logo;              
+            }
+            foundData.push(data[i]);
+          }               
         }
-        setListings(data);
+        setListings(foundData);
       });
-  }, []);
+  }, [name]);
 
   async function submit() {
     await window.ethereum.request({ method: 'eth_requestAccounts' })
@@ -53,6 +60,15 @@ function Browse() {
   return (
     <div className = 'browse'>
       <br/> <br/>
+      <form>
+         <label htmlFor="nftname">Search </label>
+         <input
+           type="text"
+           name="nftName"
+           value={name}
+           onChange={onChangeHandler}
+         />
+       </form>
       <h2>List of Available NFTs</h2>
       <table className="table">
         <thead>
@@ -66,31 +82,17 @@ function Browse() {
           {
             listings.map((list, index) =>
               
-              <tr key={index} style={{width: '20%', height: '100px'}}>
-                
+              <tr key={index} style={{width: '20%', height: '100px'}}>                
                 <td style={{width: '30%'}}> NFT {index + 1}</td>
-                <td key="name" style={{width: '30%'}} onClick={() => navigate('/nft?id=' + list._id)} >{list.name}</td>
-               
-                {/* <td style={{width: '10%'}}>
-                  <img className='browseImage' src={list.imageUrl} />
-                  {console.log(list._id)}
-                </td>  */}
-
+                <td key="name" style={{width: '30%'}} onClick={() => navigate('/nft?id=' + list._id)} >{list.name}</td>               
                 <td style={{width: '30%'}}>
                   <img className='browseImage' src={list.imageUrl}  onClick={() => navigate('/nft?id=' + list._id)} />
                   {console.log(list._id)}
-                </td>
-                
-                
-                
+                </td>                          
                 <td style={{width: '30%'}}>
-                  <button id = {"button" + index} onClick={() => navigate('/nft?id=' + list._id)}> Rent </button>
-                  
-                </td>
-                
-              </tr>
-              
-              
+                  <button id = {"button" + index} onClick={() => navigate('/nft?id=' + list._id)}> Rent </button>                  
+                </td>                
+              </tr>                       
             )
           }
         </tbody>
