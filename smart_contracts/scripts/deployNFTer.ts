@@ -1,3 +1,5 @@
+import { ethers } from 'hardhat'
+
 async function main() {
   const factory = await ethers.getContractFactory("NFTer");
   const [owner] = await ethers.getSigners();
