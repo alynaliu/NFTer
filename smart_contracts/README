@@ -1,0 +1,31 @@
+# About
+This section includes all the code interacting directly with the blockchain.
+
+## /contracts/
+The files in this folder represent the custom smart contracts built to both run and test the application.
+
+### IERC4907.sol
+This is the contract interface as specified from ERC-4907. This is used to 
+Source: https://eips.ethereum.org/EIPS/eip-4907
+
+### NFTer.sol
+This is the contract that interacts with the server. This creates escrows and facilitates communication between the server and the escrows.
+
+### NFTerEscrow.sol
+This is an escrow made from NFTer.sol. This can only communicate with its owner.
+
+### TestNFT.sol
+This is the test ERC-721 smart contract used to test functionality with the NFTer smart contract and its web application. The smart contract implements ERC-4907 functionality.
+
+The images used in the test NFT smart contract are derived from the USC-SIPI Image Database. The specific images used are in the /images/ file.
+Source: https://sipi.usc.edu/database/database.php?volume=misc
+
+## /scripts/
+
+### deployTestNFT.js
+To deploy the TestNFT.sol contract, the following command was run: "npx hardhat run .\scripts\deployTestNFT.ts --network mumbai"
+
+If later burning test NFTs, go to OpenSea testnets (https://testnets.opensea.io/), and transfer them to "0x000000000000000000000000000000000000dEaD"
+
+### deployNFTer.js
+To deploy the NFTer.sol contract, the following command was run: "npx hardhat run .\scripts\deployNFTer.ts --network mumbai"
