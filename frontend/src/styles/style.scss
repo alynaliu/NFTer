@@ -1,0 +1,16 @@
+@import '~bulma/bulma.sass';
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+}
+
+nav {
+    padding: 0.5em 1em;
+    .logo {
+        margin: auto auto;
+        font-family: 'Fira Sans', sans-serif;
+        font-size: 25px;
+        font-weight: 700;
+    }
+}

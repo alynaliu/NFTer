@@ -21,7 +21,7 @@ function Account() {
                     setAccount(accounts[0]);
                 }
                 else {
-                    alert ("There was an error, please try again");
+                    navigate('/login');
                 }
             });
     }, []);

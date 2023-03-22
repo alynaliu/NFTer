@@ -23,7 +23,7 @@ function CreateNFTListing() {
         window.ethereum.request({ method: 'eth_accounts', params: [{networkId: process.env.REACT_APP_NETWORK_ID}] })
         .then((accounts) => {
             if(accounts.length === 0) {
-                navigate('/ConnectWallet');
+                navigate('/login');
             }
             else {
                 setSenderAddress(accounts[0]);
@@ -31,7 +31,7 @@ function CreateNFTListing() {
         })
         .catch((error) =>{
             console.error(error);
-            navigate('/ConnectWallet');
+            navigate('/login');
         });
     }, []);
 
