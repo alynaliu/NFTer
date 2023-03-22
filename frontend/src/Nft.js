@@ -60,8 +60,16 @@ function Nft() {
             });
     }
 
-    function rent(){
-
+     async function rent(){
+    //     const [ publicAddress, signature ] = await authenticateAction(navigate);
+    //     axios.get('/api/nft/rent',{
+    //         params: {
+    //             publicAddress: publicAddress,
+    //             signature: signature
+    //           }
+    //         }).then((res) => {
+    //             alert ('Your nft has been rented.')
+    //         });
     }
 
     return (
