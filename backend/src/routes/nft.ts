@@ -4,7 +4,7 @@ import { verifySignature } from '../config/authenticate'
 import { getNFTMetadata, verifyNFTHolder } from '../config/blockchain'
 import { BlockchainReturnNFT } from '../contracts/worker'
 import { ArchivedListings, Listings, PendingListings } from '../models/listing'
-import { PendingRentals, Rentals } from '../models/rental'
+import { ArchivedRentals, PendingRentals, Rentals } from '../models/rental'
 
 export module NFT {
     export const router = express.Router();
@@ -20,6 +20,30 @@ export module NFT {
             await Listings.find({available: available}, 'imageUrl name').lean() : 
             await Listings.find({ownerPublicAddress: publicAddress}).lean();
         return res.send(listings);
+    });
+
+    /**
+     * PURPOSE: Returns rental history of the user
+     * USAGE: Display past and current NFT rentals onto the user interface
+     */
+    router.get('/userhistory', async (req: Request, res: Response) => {
+        const { publicAddress } = req.query;
+        const rental = await Rentals.find({renterPublicAddress: publicAddress}).lean()
+        if(!rental)
+            return res.sendStatus(401);
+        return res.send(rental);
+    });
+
+    /**
+     * PURPOSE: Returns rental history of a single NFT
+     * USAGE: Display past and current NFT rentals onto the user interface
+     */
+    router.get('/nfthistory', async (req: Request, res: Response) => {
+        const { id } = req.query;
+        const rental = await Rentals.find({listingID: id}).lean()
+        if(!rental)
+            return res.sendStatus(401);
+        return res.send(rental);
     });
 
     /**
@@ -97,7 +121,7 @@ export module NFT {
         await archivedListing.save();
         await listing.remove();
 
-        await BlockchainReturnNFT(archivedListing.contractAddress, archivedListing.tokenID, archivedListing.ownerPublicAddress);
+        await BlockchainReturnNFT(archivedListing.contractAddress, archivedListing.tokenID);
 
         return res.sendStatus(200);
     });

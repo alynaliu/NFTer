@@ -62,7 +62,19 @@ export function BlockchainWorker()
         });
 }
 
-export async function BlockchainReturnNFT(contractAddress: string, tokenId: int, ownerAddress: string)
+export async function BlockchainRentNFT(contractAddress: string, tokenId: int, renterAddress: string,  expires: int)
 {
-        await contract.methods.returnNFT(contractAddress, tokenId, ownerAddress);
+        await contract.methods.rentNFT(contractAddress, tokenId, renterAddress, expires);
+}
+
+export async function BlockchainReturnNFT(contractAddress: string, tokenId: int)
+{
+        const output = await contract.methods.returnNFT(contractAddress, tokenId);
+        return output;
+}
+
+export async function PayOwner(contractAddress: string, tokenId: int, _to: string)
+{
+        const output = await contract.methods.payOwner(contractAddress, tokenId, _to);    
+        return output;    
 }

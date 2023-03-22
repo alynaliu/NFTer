@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import logo from './assets/MetaMask_Fox.png';
 import { authenticateAction } from './comps/authenticate';
 
 function Account() {
     const navigate = useNavigate();
     const [isAuthenticated, setAuthenticated] = useState();
-    const [account, setAccount] = useState();
+    const [account, setAccount] = useState([]);
+    const [listings, setListings] = useState([]);
 
     // check if user is logged into a metamask account, otherwise forward them to login page
     useEffect(() => {
@@ -17,55 +19,71 @@ function Account() {
                     setAccount(accounts[0]);
                 }
                 else {
-                    navigate("/login")
+                    alert ("There was an error, please try again");
                 }
             });
     }, []);
 
-    // returns all nfts listed by an account, to be checked later
+    // returns all nfts for the logged in account
     useEffect(() => {
         if (isAuthenticated && account !== undefined) {
-            axios
-                .get("/api/nft/listings", {
+            axios.get("/api/nft/listings", 
+                {
                     params: {
                         available: true,
                         publicAddress: account,
                     },
                 })
                 .then((res) => {
-                    console.log(res.data);
+                    let data = res.data;
+                    for (let i = 0; i < data.length; i++) {
+                        if (data[i].imageUrl === undefined || data[i].imageUrl === null) {
+                            data[i].imageUrl = logo;
+                        }
+                    }
+                    setListings(data);
                 });
         }
 
-    }, [account]);
+    }, [isAuthenticated]);
 
-    async function submit() {
+    async function remove(id) {
         
-        // if there is more than 1 account linked, then the user is authorized 
-        await window.ethereum.request({ method: 'eth_requestAccounts' })
-            .then((accounts) => {
-                if (accounts.length > 0) {
-                    setAuthenticated(true);
-                    setAccount(accounts[0]);
-                    console.log(account);
-                    //navigate("/")
+        let answer = window.confirm ("Would you like to delete this listing?");
+        if (answer) {
+            const [ publicAddress, signature ] = await authenticateAction(navigate);
+            axios.delete('/api/nft/listing',  {
+                params: {
+                  publicAddress: publicAddress,
+                  listingID: id,
+                  signature: signature,
                 }
-            })
-            .catch((error) => {
-                if (error.code === 4001) {
-                    // EIP-1193 userRejectedRequest error
-                    console.log('Please connect to MetaMask.');
-                    setAuthenticated(false);
-                } else {
-                    console.error(error);
-                }
-            });
-        //const [publicAddress, signature] = await authenticateAction(navigate);
-    }
+              })
+              .then((res) => {
+                alert ('Your listing has been deleted.')
+              });
+        }        
+      }
 
-    return (
+    return (     
         <div>
-            <button onClick={() => submit()}>Log in with Metamask</button>
+            {
+            listings.map((list, index) =>
+                <div className='nftdisplay'>
+                    <div className='imageSide'>
+                        <img src={list.imageUrl} />
+                    </div>
+                    <div className='infoSide'>
+                        <p>Lender: {account}</p>
+                        <p className='subtle'>Collection</p>
+                        <p className='nftName'>{list.name}</p>
+                        <hr className='clear'></hr>
+                        <button id = {'edit' + index} onClick={() => navigate('/editnft?id=' + list._id)}> Edit </button>
+                        <button id = {'delete' + index} onClick={() => remove(list._id)}> Delete </button>
+                    </div>
+                </div>
+                )
+            }
         </div>
     );
 }
