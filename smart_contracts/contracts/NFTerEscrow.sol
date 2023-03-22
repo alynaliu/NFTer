@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -71,7 +71,7 @@ contract NFTerEscrow is Ownable, IERC721Receiver
         uint256 currentTime = getTime();
         if(currentTime > _rentalExpires)
         {
-            ERC721(_metadata.operator).safeTransferFrom(address(this), _metadata.owner, _metadata.tokenId);
+            IERC721(_metadata.operator).safeTransferFrom(address(this), _metadata.owner, _metadata.tokenId);
             parentInstance.childSelfDestructed(_metadata.operator, _metadata.owner, _metadata.tokenId);
             selfdestruct(payable(owner()));
             return true;

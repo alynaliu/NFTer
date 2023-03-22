@@ -2,11 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "./IERC4907.sol";
 import "./NFTerEscrow.sol";
 
 contract NFTer is Ownable, IERC721Receiver 
@@ -24,12 +23,12 @@ contract NFTer is Ownable, IERC721Receiver
     mapping(address => mapping(uint256 => NFTerEscrow)) private escrows;
     mapping(address => ERC721Metadata) private activeEscrows;
 
-    event ReceivedERC721NFT(address indexed operator, address indexed from, uint256 tokenId);
-    event EscrowReceivedERC721NFT(address indexed operator, address indexed from, uint256 tokenId, address indexed escrow);
-    event ReturnedERC721NFT(address indexed operator, address indexed to, uint256 tokenId);
-    event ReceivedETH(address indexed from, uint256 amount, address indexed escrow);
-    event PayedETH(address indexed renter, address indexed owner, uint256 amount, address indexed escrow);
-    event RefundedETH(address indexed renter, address indexed owner, uint256 amount, address indexed escrow);
+    event ReceivedERC721NFT(address contractAddress, address from, uint256 tokenId);
+    event EscrowReceivedERC721NFT(address contractAddress, address from, uint256 tokenId, address indexed escrow);
+    event ReturnedERC721NFT(address contractAddress, address to, uint256 tokenId);
+    event ReceivedETH(address from, uint256 amount, address escrow);
+    event PayedETH(address renter, address owner, uint256 amount, address escrow);
+    event RefundedETH(address renter, address owner, uint256 amount, address escrow);
 
     function childReceivedERC721NFT(address operator, address from, uint256 tokenId) external onlyEscrows
     {
@@ -54,8 +53,8 @@ contract NFTer is Ownable, IERC721Receiver
     //Receives ERC-721 NFTs
     function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data) external virtual override returns (bytes4)
     {
-        createChild(operator, from, tokenId);
-        emit ReceivedERC721NFT(operator, from, tokenId);
+        createChild(msg.sender, from, tokenId);
+        emit ReceivedERC721NFT(msg.sender, from, tokenId);
         return IERC721Receiver.onERC721Received.selector;
     }
 
@@ -91,30 +90,30 @@ contract NFTer is Ownable, IERC721Receiver
         escrow.refundMoney(_to);
     }
 
-    function createChild(address operator, address from, uint256 tokenId) private
+    function createChild(address contractAddress, address from, uint256 tokenId) private
     {
         NFTerEscrow escrow = new NFTerEscrow(this);
-        escrows[operator][tokenId] = escrow;
+        escrows[contractAddress][tokenId] = escrow;
         activeEscrows[address(escrow)] = ERC721Metadata({
             owner: from,
-            operator: operator,
+            operator: contractAddress,
             tokenId: tokenId
         });
     }
 
-    function sendChildERC721(address operator, uint256 tokenId) external onlyOwner
+    function sendChildERC721(address contractAddress, uint256 tokenId) external onlyOwner
     {
-        require(address(escrows[operator][tokenId]) != address(0), "Error: Escrow doesn't exist");
-        NFTerEscrow escrow = escrows[operator][tokenId];
+        require(address(escrows[contractAddress][tokenId]) != address(0), "Error: Escrow doesn't exist");
+        NFTerEscrow escrow = escrows[contractAddress][tokenId];
         bytes memory encodedAddress = abi.encode(activeEscrows[address(escrow)]);
-        ERC721(operator).safeTransferFrom(address(this), address(escrow), tokenId, encodedAddress);
+        IERC721(contractAddress).safeTransferFrom(address(this), address(escrow), tokenId, encodedAddress);
     }
 
-    function childSelfDestructed(address operator, address to, uint256 tokenId) external onlyEscrows 
+    function childSelfDestructed(address contractAddress, address to, uint256 tokenId) external onlyEscrows 
     {
-        delete escrows[operator][tokenId];
+        delete escrows[contractAddress][tokenId];
         delete activeEscrows[msg.sender];
-        emit ReturnedERC721NFT(operator, to, tokenId);
+        emit ReturnedERC721NFT(contractAddress, to, tokenId);
     }
 
     function getTime() external view returns (uint256)
@@ -122,9 +121,9 @@ contract NFTer is Ownable, IERC721Receiver
         return block.timestamp;
     }
 
-    function getEscrowAddress(address operator, uint256 tokenId) external view returns (address)
+    function getEscrowAddress(address contractAddress, uint256 tokenId) external view returns (address)
     {
-        return address(escrows[operator][tokenId]);
+        return address(escrows[contractAddress][tokenId]);
     }
 
     function getNFTDetails(address escrow) external view returns (address, uint256)
