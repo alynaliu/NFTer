@@ -75,7 +75,7 @@ export module NFT {
         await new PendingListings({
             name: nftMetadata.metadata.name,
             tokenID: tokenID,
-            imageUrl: nftMetadata.media.raw,
+            imageUrl: nftMetadata.media[0].gateway,
             tokenType: nftMetadata.id.tokenMetadata.tokenType,
             contractAddress: contractAddress,
             description: nftMetadata.metadata.description,

@@ -22,7 +22,7 @@ const contract = new Web3EthContract(NFTer.abi, process.env.CONTRACT_ADDRESS, {
 
 export function BlockchainWorker()
 {
-        contract.events.ReceivedERC721NFT(async (error, event) => {
+        contract.events.EscrowReceivedERC721NFT(async (error, event) => {
                 if(event) {
                         const pendingListing = await PendingListings.findOne({transactionHash: event.transactionHash});
                         if(!pendingListing)

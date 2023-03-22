@@ -4,7 +4,7 @@ const Schema = new mongoose.Schema({
     blockchain: {
         type: String,
         requried: true,
-        default: 'goerli_eth'
+        default: 'mumbai'
     },
     name: {
         type: String,

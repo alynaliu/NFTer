@@ -69,7 +69,6 @@ function Browse() {
                         <img className="has-ratio" src={list.imageUrl} />
                       </figure>
                     </div>
-                    <p></p>
                     <div className="card-content has-text-centered">
                       <p>{list.name}</p>
                     </div>
