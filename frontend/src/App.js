@@ -20,7 +20,7 @@ function App (){
     <Router>
         <Routes>
           <Route path="/" element={<Browse/>}/>
-          <Route path="/ConnectWallet" element={<ConnectWallet/>}/>
+          <Route path="/login" element={<ConnectWallet/>}/>
           <Route path="/createnft" element={<CreateNFT/>}/>
           <Route path="/editnft" element={<EditNFT/>}/>
           <Route path="/nft" element={<Nft/>}/>

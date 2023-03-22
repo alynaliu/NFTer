@@ -18,7 +18,6 @@ function ConnectWallet() {
           })
           .catch((error) =>{
               console.error(error);
-              navigate('/bad-login');
           });
   }, []);
 
