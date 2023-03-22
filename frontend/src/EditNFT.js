@@ -2,7 +2,7 @@ import { useEffect, useState} from 'react'
 import axios from 'axios';
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { authenticateAction } from "./comps/authenticate"
-
+import Nav from "./Nav";
 
 function EditNFTListings() {
 
@@ -44,7 +44,8 @@ function EditNFTListings() {
 
 
     return (
-            <div>
+             <div>
+                <Nav />
                 <img src={nft.imageUrl}/>
                 <p>NFT Name: {nft.name}</p>
                 <p>NFT Rental Rate: {nft.rentalRate}</p>

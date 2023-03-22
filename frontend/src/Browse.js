@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import logo from './assets/MetaMask_Fox.png';
-import './styles/style.css';
+import Nav from "./Nav";
 
 function Browse() {
   const [listings, setListings] = useState([]);
@@ -59,7 +59,10 @@ function Browse() {
   }
 
   return (
+     <div>
+      <Nav />
     <div className = 'browse'>
+    <h2>List of Available NFTs</h2>
       <br/> <br/>
       <form>
          <label htmlFor="nftname">Search </label>
@@ -67,10 +70,10 @@ function Browse() {
            type="text"
            name="nftName"
            value={name}
+           placeholder='Enter NFT name..'
            onChange={onChangeHandler}
          />
        </form>
-      <h2>List of Available NFTs</h2>
       <table className="table">
         <tbody>
           {
@@ -95,6 +98,7 @@ function Browse() {
         </tbody>
       </table>
     </div>
+    </div> 
   );
 }
 export default Browse;

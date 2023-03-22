@@ -5,6 +5,7 @@ import Web3 from 'web3'
 
 import ERC721 from './assets/ERC721.json'
 import { authenticateAction } from './comps/authenticate'
+import Nav from "./Nav";
 
 function CreateNFTListing() {
     const navigate = useNavigate();
@@ -92,6 +93,7 @@ function CreateNFTListing() {
 
     return (
         <div>
+            <Nav />
             <div>
                 <label>
                         Enter Contract Address

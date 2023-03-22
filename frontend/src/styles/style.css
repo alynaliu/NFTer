@@ -68,7 +68,10 @@ body{
 }
 .available{
     background-color: #9884b8;
+    border-width: 5px;
 }
+
+
 .unavailable{
     background-color: black;
 }
@@ -121,6 +124,13 @@ body{
 
 .browse{
     padding: 40px;
+    text-align: center;
+}
+
+.browse input{
+    width: 20%;
+    padding: 10px;
+    font-size: large;
 }
 
 .browse table {
@@ -141,6 +151,17 @@ body{
 }
 .browse button:hover {
     background-color: #1f1e1e
+}
+
+
+.navbar ul li{
+    display: inline-block;
+    font-size: 30px;
+    color: white;
+}
+
+.navbar Link{
+    color: inherit;
 }
 
 .card-container {
@@ -167,4 +188,4 @@ body{
     text-align: right;
     margin-top: 10px;
   }
-  
+ 
