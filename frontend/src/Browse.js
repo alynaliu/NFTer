@@ -59,8 +59,10 @@ function Browse() {
   }
 
   return (
-    <> <Nav />
+     <div>
+      <Nav />
     <div className = 'browse'>
+    <h2>List of Available NFTs</h2>
       <br/> <br/>
       <form>
          <label htmlFor="nftname">Search </label>
@@ -68,18 +70,11 @@ function Browse() {
            type="text"
            name="nftName"
            value={name}
+           placeholder='Enter NFT name..'
            onChange={onChangeHandler}
          />
        </form>
-      <h2>List of Available NFTs</h2>
       <table className="table">
-        <thead>
-          <tr>
-            <th></th>
-            <th key="name" height= '40px' >NFTs</th>
-            <th></th>
-          </tr>
-        </thead>
         <tbody>
           {
             listings.map((list, index) =>
@@ -99,7 +94,8 @@ function Browse() {
           }
         </tbody>
       </table>
-    </div> </>
+    </div>
+    </div> 
   );
 }
 export default Browse;

@@ -66,8 +66,8 @@ function Nft() {
     }
 
     return (
-        <> <Nav />
       <div>
+      <Nav />
         <div className='nftdisplay'>
             <div className='imageSide'>
                 <img src={listing.imageUrl}/>
@@ -101,7 +101,6 @@ function Nft() {
             </div>
         </div>
       </div>
-      </>
     );
   }
   

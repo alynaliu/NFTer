@@ -44,7 +44,8 @@ function EditNFTListings() {
 
 
     return (
-            <> <Nav /><div>
+             <div>
+                <Nav />
                 <img src={nft.imageUrl}/>
                 <p>NFT Name: {nft.name}</p>
                 <p>NFT Rental Rate: {nft.rentalRate}</p>
@@ -69,7 +70,6 @@ function EditNFTListings() {
 
                 </div>
             </div>
-            </>
         )
   }
   

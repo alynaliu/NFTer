@@ -92,9 +92,8 @@ function CreateNFTListing() {
     }
 
     return (
-        <>
-        <Nav />
         <div>
+            <Nav />
             <div>
                 <label>
                         Enter Contract Address
@@ -128,7 +127,6 @@ function CreateNFTListing() {
                 </div>
             </div>
         </div>
-        </>
     );
 }
 

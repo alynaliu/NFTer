@@ -39,7 +39,8 @@ function ConnectWallet() {
           });
   }
     return (
-      <> <Nav /><div>
+       <div>
+        <Nav />
         <img src ={nfter} alt ="NFTer"/>
       <div className='sign-in' >
       <h3>
@@ -57,7 +58,7 @@ function ConnectWallet() {
       <div className='footer'>
         this is the footer
         </div>
-      </div></>
+      </div>
     );
   }
 
