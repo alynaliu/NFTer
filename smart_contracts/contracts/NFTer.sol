@@ -22,29 +22,30 @@ contract NFTer is Ownable, IERC721Receiver
     uint256 public commission_amount = 2;
     mapping(address => mapping(uint256 => NFTerEscrow)) private escrows;
     mapping(address => ERC721Metadata) private activeEscrows;
+    mapping(address => bool) private isEscrow;
 
-    event EscrowReceivedERC721NFT(address contractAddress, address from, uint256 tokenId, address indexed escrow);
+    event EscrowReceivedERC721NFT(address contractAddress, address from, uint256 tokenId, address escrow);
     event ReturnedERC721NFT(address contractAddress, address to, uint256 tokenId);
     event ReceivedETH(address from, uint256 amount, address escrow);
     event PayedETH(address renter, address owner, uint256 amount, address escrow);
     event RefundedETH(address renter, address owner, uint256 amount, address escrow);
 
-    function childReceivedERC721NFT(address contractAddress, address from, uint256 tokenId) external onlyEscrows
+    function childReceivedERC721NFT(address contractAddress, address from, uint256 tokenId) public onlyEscrows
     {
         emit EscrowReceivedERC721NFT(contractAddress, from, tokenId, msg.sender);
     }
     
-    function childReceivedETH(address from, uint256 amount) external onlyEscrows
+    function childReceivedETH(address from, uint256 amount) public onlyEscrows
     {
         emit ReceivedETH(from, amount, msg.sender);
     }
 
-    function childPayedETH(address renter, address owner, uint256 amount) external onlyEscrows
+    function childPayedETH(address renter, address owner, uint256 amount) public onlyEscrows
     {
         emit PayedETH(renter, owner, amount, msg.sender);
     }
 
-    function childRefundedETH(address renter, address owner, uint256 amount) external onlyEscrows
+    function childRefundedETH(address renter, address owner, uint256 amount) public onlyEscrows
     {
         emit RefundedETH(renter, owner, amount, msg.sender);
     }
@@ -97,6 +98,7 @@ contract NFTer is Ownable, IERC721Receiver
             contractAddress: contractAddress,
             tokenId: tokenId
         });
+        isEscrow[address(escrow)] = true;
         bytes memory encodedAddress = abi.encode(from);
         IERC721(contractAddress).safeTransferFrom(address(this), address(escrow), tokenId, encodedAddress);
     }
@@ -105,6 +107,7 @@ contract NFTer is Ownable, IERC721Receiver
     {
         delete escrows[contractAddress][tokenId];
         delete activeEscrows[msg.sender];
+        delete isEscrow[msg.sender];
         emit ReturnedERC721NFT(contractAddress, to, tokenId);
     }
 
@@ -123,14 +126,9 @@ contract NFTer is Ownable, IERC721Receiver
         return (activeEscrows[escrow].contractAddress, activeEscrows[escrow].tokenId);
     }
 
-    modifier onlyEscrows()
+    modifier onlyEscrows
     {
-        _checkEscrows();
+        require(isEscrow[msg.sender] == true, "Ownable: caller is not an escrow");
         _;
-    }
-
-    function _checkEscrows() internal view virtual
-    {
-        require(activeEscrows[_msgSender()].owner != address(0), "Ownable: caller is not an escrow");
     }
 }

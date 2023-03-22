@@ -33,7 +33,7 @@ contract NFTerEscrow is Ownable, IERC721Receiver
     //Receives ERC-721 NFTs
     function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data) external virtual override returns (bytes4)
     {
-        if(msg.sender == owner()) {
+        if(operator == owner()) {
             _metadata = ERC721Metadata({
                 owner: abi.decode(data, (address)),
                 contractAddress: msg.sender,
