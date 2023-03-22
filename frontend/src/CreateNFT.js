@@ -103,8 +103,6 @@ function CreateNFTListing() {
                 <div className='NFT'>
                     {
                         nft.map((datas, index) =>
-
-
                             <div className= "card-container"  key={datas.tokenID + "-" + index} onClick={() => selectNFT(index)}>
 
                             <div class= "nft-image">
@@ -117,7 +115,6 @@ function CreateNFTListing() {
                             <p className="nft_Name" key="name" style={{width: '30%'}} >{datas.metadata.name}</p>
                             <p className="nftNumber" style={{width: '30%'}}>{parseInt(datas.id.tokenId)}</p>
                             </div>
-
                             </div> 
                         )
                     }
@@ -131,7 +128,7 @@ function CreateNFTListing() {
                     <br></br>
                     <label>
                         Add Max Rental Days
-                        <input type="text" name="rentaDays" onChange={(e) => setRentalDays(e.target.value)} />
+                        <input type="text" name="rentalDays" onChange={(e) => setRentalDays(e.target.value)} />
                     </label>
                     <button onClick={() => createNFT()}> Create NFT List</button>
                 </div>
