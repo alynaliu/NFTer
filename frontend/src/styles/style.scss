@@ -14,3 +14,12 @@ nav {
         font-weight: 700;
     }
 }
+
+.nft_card {
+    width: 300px;
+    margin: 15px;
+    cursor: pointer;
+    img {
+        object-fit: cover;
+    }
+}

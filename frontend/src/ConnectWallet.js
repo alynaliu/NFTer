@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import logo from './assets/MetaMask_Fox.png';
-import nfter from './assets/NFTer.png';
 import Nav from "./Nav";
 
 function ConnectWallet() {
@@ -40,7 +39,6 @@ function ConnectWallet() {
     return (
        <div>
         <Nav />
-        <img src ={nfter} alt ="NFTer"/>
       <div className='sign-in' >
       <h3>
        Connect your wallet.
