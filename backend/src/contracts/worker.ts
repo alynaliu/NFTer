@@ -11,10 +11,11 @@ import { PendingRentals, Rentals } from '../models/rental'
 
 dotenv.config();
 
-const accounts = new Accounts(new Web3WsProvider(process.env.WEB3_WSS_PROVIDER));
+const provider = new Web3WsProvider(`wss://${process.env.WEB3_PROVIDER}`);
+const accounts = new Accounts(provider);
 const account = accounts.privateKeyToAccount(process.env.OWNER_PRIVATE_KEY);
 
-Web3EthContract.setProvider(new Web3WsProvider(process.env.WEB3_WSS_PROVIDER));
+Web3EthContract.setProvider(provider);
 const contract = new Web3EthContract(NFTer.abi, process.env.CONTRACT_ADDRESS, {
         from: account.address
 });
