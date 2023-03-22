@@ -23,3 +23,16 @@ nav {
         object-fit: cover;
     }
 }
+
+.metamask_button {
+    background-color: #EFC9A7;
+    &:active {
+        background-color: #F4A153;
+    }
+    span {
+        margin-left: 10px;
+    }
+    img {
+        width: 30px;
+    }
+}
