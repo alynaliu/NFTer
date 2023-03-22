@@ -61,8 +61,8 @@ function Nft() {
             });
     }
 
-    function rent(){
-
+     async function rent(){
+   
     }
 
     return (

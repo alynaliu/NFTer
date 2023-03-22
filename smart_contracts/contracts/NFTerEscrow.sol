@@ -31,14 +31,16 @@ contract NFTerEscrow is Ownable, IERC721Receiver
     }
 
     //Receives ERC-721 NFTs
-    function onERC721Received(address operator, address from, uint256 tokenId, bytes memory data) public override onlyOwner returns (bytes4)
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data) external virtual override returns (bytes4)
     {
-        _metadata = ERC721Metadata({
-            owner: abi.decode(data, (address)),
-            operator: operator,
-            tokenId: tokenId
-        });
-        parentInstance.childReceivedERC721NFT(operator, from, tokenId);
+        if(msg.sender == owner()) {
+            _metadata = ERC721Metadata({
+                owner: abi.decode(data, (address)),
+                operator: operator,
+                tokenId: tokenId
+            });
+            parentInstance.childReceivedERC721NFT(operator, from, tokenId);
+        }
         return IERC721Receiver.onERC721Received.selector;
     }
 

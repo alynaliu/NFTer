@@ -48,7 +48,7 @@ function CreateNFTListing() {
     }
 
     function selectNFT(index){
-        setActivatedNFT(nft[index].metadata.title);
+        setActivatedNFT(nft[index].metadata.name);
         setTokenId(parseInt(nft[index].id.tokenId));
     }
 
@@ -103,12 +103,22 @@ function CreateNFTListing() {
                 <div className='NFT'>
                     {
                         nft.map((datas, index) =>
-                            <div key={datas.tokenID + "-" + index} onClick={(e) => selectNFT(index)}>
-                                <p>Choose an NFT to create an NFT Post:</p>
-                                <img src={datas.media[0].gateway}/>
-                                <p>{datas.metadata.title}</p>
-                                <p>{parseInt(datas.id.tokenId)}</p>
+
+
+                            <div className= "card-container"  key={datas.tokenID + "-" + index} onClick={() => selectNFT(index)}>
+
+                            <div class= "nft-image">
+                                <figure style={{width: '30%'}}>
+                                <img className='browseImage' src={datas.media[0].gateway}/>
+                                </figure>
                             </div>
+
+                            <div className="nft-content">
+                            <p className="nft_Name" key="name" style={{width: '30%'}} >{datas.metadata.name}</p>
+                            <p className="nftNumber" style={{width: '30%'}}>{parseInt(datas.id.tokenId)}</p>
+                            </div>
+
+                            </div> 
                         )
                     }
                     <br></br>

@@ -24,7 +24,8 @@ contract NFTer is Ownable, IERC721Receiver
     mapping(address => mapping(uint256 => NFTerEscrow)) private escrows;
     mapping(address => ERC721Metadata) private activeEscrows;
 
-    event ReceivedERC721NFT(address indexed operator, address indexed from, uint256 tokenId, address indexed escrow);
+    event ReceivedERC721NFT(address indexed operator, address indexed from, uint256 tokenId);
+    event EscrowReceivedERC721NFT(address indexed operator, address indexed from, uint256 tokenId, address indexed escrow);
     event ReturnedERC721NFT(address indexed operator, address indexed to, uint256 tokenId);
     event ReceivedETH(address indexed from, uint256 amount, address indexed escrow);
     event PayedETH(address indexed renter, address indexed owner, uint256 amount, address indexed escrow);
@@ -32,7 +33,7 @@ contract NFTer is Ownable, IERC721Receiver
 
     function childReceivedERC721NFT(address operator, address from, uint256 tokenId) external onlyEscrows
     {
-        emit ReceivedERC721NFT(operator, from, tokenId, msg.sender);
+        emit EscrowReceivedERC721NFT(operator, from, tokenId, msg.sender);
     }
     
     function childReceivedETH(address from, uint256 amount) external onlyEscrows
@@ -51,9 +52,10 @@ contract NFTer is Ownable, IERC721Receiver
     }
     
     //Receives ERC-721 NFTs
-    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data) external override returns (bytes4)
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data) external virtual override returns (bytes4)
     {
         createChild(operator, from, tokenId);
+        emit ReceivedERC721NFT(operator, from, tokenId);
         return IERC721Receiver.onERC721Received.selector;
     }
 
@@ -98,8 +100,14 @@ contract NFTer is Ownable, IERC721Receiver
             operator: operator,
             tokenId: tokenId
         });
-        bytes memory encodedAddress = abi.encode(from);
-        IERC721(operator).safeTransferFrom(msg.sender, address(escrow), tokenId, encodedAddress);
+    }
+
+    function sendChildERC721(address operator, uint256 tokenId) external onlyOwner
+    {
+        require(address(escrows[operator][tokenId]) != address(0), "Error: Escrow doesn't exist");
+        NFTerEscrow escrow = escrows[operator][tokenId];
+        bytes memory encodedAddress = abi.encode(activeEscrows[address(escrow)]);
+        ERC721(operator).safeTransferFrom(address(this), address(escrow), tokenId, encodedAddress);
     }
 
     function childSelfDestructed(address operator, address to, uint256 tokenId) external onlyEscrows 

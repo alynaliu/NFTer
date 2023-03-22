@@ -23,9 +23,11 @@ Source: https://sipi.usc.edu/database/database.php?volume=misc
 ## /scripts/
 
 ### deployTestNFT.js
+The solidity contracts must first be compiled with: "npx hardhat compile"
 To deploy the TestNFT.sol contract, the following command was run: "npx hardhat run .\scripts\deployTestNFT.ts --network mumbai"
 
 If later burning test NFTs, go to OpenSea testnets (https://testnets.opensea.io/), and transfer them to "0x000000000000000000000000000000000000dEaD"
 
 ### deployNFTer.js
+The solidity contracts must first be compiled with: "npx hardhat compile"
 To deploy the NFTer.sol contract, the following command was run: "npx hardhat run .\scripts\deployNFTer.ts --network mumbai"

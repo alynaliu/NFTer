@@ -153,6 +153,7 @@ body{
     background-color: #1f1e1e
 }
 
+
 .navbar ul li{
     display: inline-block;
     font-size: 30px;
@@ -162,3 +163,29 @@ body{
 .navbar Link{
     color: inherit;
 }
+
+.card-container {
+    border: 1px solid #ccc;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .card-content {
+    margin-top: 10px;
+  }
+
+  .nft_Name{
+    align-items: right;
+    text-align: right;
+    margin-top: 10px;
+  }
+
+  .nftNumber{
+    align-items: right;
+    text-align: right;
+    margin-top: 10px;
+  }
+ 
