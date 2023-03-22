@@ -29,12 +29,14 @@ contract TestNFT is ERC721Enumerable, Ownable, IERC4907 {
     function setUser(uint256 tokenId, address user, uint64 expires) public virtual
     {
         require(_isApprovedOrOwner(msg.sender, tokenId),"ERC721: transfer caller is not owner nor approved");
-        UserInfo storage info =  _users[tokenId];
+        UserInfo info =  _users[tokenId];
 
         require(info.expires < block.timestamp, "Already rented to someone");
 
-        info.user = user;
-        info.expires = expires;
+        _users[tokenId] = UserInfo({
+            user: user,
+            expires: expires
+        });
         emit UpdateUser(tokenId,user,expires);
     }
 
