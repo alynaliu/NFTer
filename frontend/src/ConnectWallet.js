@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import logo from './assets/MetaMask_Fox.png';
 import nfter from './assets/NFTer.png';
-import './styles/style.css';
+import Nav from "./Nav";
 
 function ConnectWallet() {
 
@@ -39,7 +39,7 @@ function ConnectWallet() {
           });
   }
     return (
-      <div>
+      <> <Nav /><div>
         <img src ={nfter} alt ="NFTer"/>
       <div className='sign-in' >
       <h3>
@@ -57,7 +57,7 @@ function ConnectWallet() {
       <div className='footer'>
         this is the footer
         </div>
-      </div>
+      </div></>
     );
   }
 

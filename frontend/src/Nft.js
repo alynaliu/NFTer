@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 
 import logo from './assets/MetaMask_Fox.png';
 import './styles/style.css';
+import Nav from "./Nav";
 
 function Nft() {
     const [listing, setListing] = useState(0);
@@ -65,6 +66,7 @@ function Nft() {
     }
 
     return (
+        <> <Nav />
       <div>
         <div className='nftdisplay'>
             <div className='imageSide'>
@@ -99,6 +101,7 @@ function Nft() {
             </div>
         </div>
       </div>
+      </>
     );
   }
   

@@ -143,3 +143,12 @@ body{
     background-color: #1f1e1e
 }
 
+.navbar ul li{
+    display: inline-block;
+    font-size: 30px;
+    color: white;
+}
+
+.navbar Link{
+    color: inherit;
+}

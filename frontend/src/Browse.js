@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import logo from './assets/MetaMask_Fox.png';
-import './styles/style.css';
+import Nav from "./Nav";
 
 function Browse() {
   const [listings, setListings] = useState([]);
@@ -59,6 +59,7 @@ function Browse() {
   }
 
   return (
+    <> <Nav />
     <div className = 'browse'>
       <br/> <br/>
       <form>
@@ -98,7 +99,7 @@ function Browse() {
           }
         </tbody>
       </table>
-    </div>
+    </div> </>
   );
 }
 export default Browse;

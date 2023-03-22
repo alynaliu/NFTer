@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import logo from './assets/MetaMask_Fox.png';
+import Nav from "./Nav";
 import { authenticateAction } from './comps/authenticate';
 
 function Account() {
@@ -68,6 +69,7 @@ function Account() {
 
     return (     
         <div>
+            <Nav />
             {
             listings.map((list, index) =>
                 <div className='nftdisplay'>

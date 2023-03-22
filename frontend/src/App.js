@@ -1,10 +1,11 @@
 import React, { Component } from "react";
-import Browse from "./Browse"
-import ConnectWallet from "./ConnectWallet"
+import Browse from "./Browse";
+import ConnectWallet from "./ConnectWallet";
 import CreateNFT from "./CreateNFT";
 import EditNFT from "./EditNFT";
 import Nft  from "./Nft";
 import Account from "./Account"
+
 
 import {
   BrowserRouter as Router,
