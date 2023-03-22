@@ -16,7 +16,7 @@ contract NFTerEscrow is Ownable, IERC721Receiver
 
     struct ERC721Metadata {
         address owner;
-        address operator;
+        address contractAddress;
         uint256 tokenId;
     }
 
@@ -36,10 +36,10 @@ contract NFTerEscrow is Ownable, IERC721Receiver
         if(msg.sender == owner()) {
             _metadata = ERC721Metadata({
                 owner: abi.decode(data, (address)),
-                operator: operator,
+                contractAddress: msg.sender,
                 tokenId: tokenId
             });
-            parentInstance.childReceivedERC721NFT(operator, from, tokenId);
+            parentInstance.childReceivedERC721NFT(msg.sender, from, tokenId);
         }
         return IERC721Receiver.onERC721Received.selector;
     }
@@ -63,7 +63,7 @@ contract NFTerEscrow is Ownable, IERC721Receiver
     function rentNFT(address renterAddress, uint64 expires) external onlyOwner
     {
         _rentalExpires = expires;
-        IERC4907(_metadata.operator).setUser(_metadata.tokenId, renterAddress, expires);
+        IERC4907(_metadata.contractAddress).setUser(_metadata.tokenId, renterAddress, expires);
     }
 
     function returnNFT() external onlyOwner returns (bool)
@@ -71,8 +71,8 @@ contract NFTerEscrow is Ownable, IERC721Receiver
         uint256 currentTime = getTime();
         if(currentTime > _rentalExpires)
         {
-            IERC721(_metadata.operator).safeTransferFrom(address(this), _metadata.owner, _metadata.tokenId);
-            parentInstance.childSelfDestructed(_metadata.operator, _metadata.owner, _metadata.tokenId);
+            IERC721(_metadata.contractAddress).safeTransferFrom(address(this), _metadata.owner, _metadata.tokenId);
+            parentInstance.childSelfDestructed(_metadata.contractAddress, _metadata.owner, _metadata.tokenId);
             selfdestruct(payable(owner()));
             return true;
         }
@@ -105,7 +105,7 @@ contract NFTerEscrow is Ownable, IERC721Receiver
 
         _rentalExpires = getTime();
         //Set contract to be renter of NFT for 1 minute
-        IERC4907(_metadata.operator).setUser(_metadata.tokenId, address(this), uint64(_rentalExpires + 60));
+        IERC4907(_metadata.contractAddress).setUser(_metadata.tokenId, address(this), uint64(_rentalExpires + 60));
     }
 
     function getTime() private view returns (uint256)

@@ -15,7 +15,7 @@ contract NFTer is Ownable, IERC721Receiver
 
     struct ERC721Metadata {
         address owner;
-        address operator;
+        address contractAddress;
         uint256 tokenId;
     }
 
@@ -23,16 +23,15 @@ contract NFTer is Ownable, IERC721Receiver
     mapping(address => mapping(uint256 => NFTerEscrow)) private escrows;
     mapping(address => ERC721Metadata) private activeEscrows;
 
-    event ReceivedERC721NFT(address contractAddress, address from, uint256 tokenId);
     event EscrowReceivedERC721NFT(address contractAddress, address from, uint256 tokenId, address indexed escrow);
     event ReturnedERC721NFT(address contractAddress, address to, uint256 tokenId);
     event ReceivedETH(address from, uint256 amount, address escrow);
     event PayedETH(address renter, address owner, uint256 amount, address escrow);
     event RefundedETH(address renter, address owner, uint256 amount, address escrow);
 
-    function childReceivedERC721NFT(address operator, address from, uint256 tokenId) external onlyEscrows
+    function childReceivedERC721NFT(address contractAddress, address from, uint256 tokenId) external onlyEscrows
     {
-        emit EscrowReceivedERC721NFT(operator, from, tokenId, msg.sender);
+        emit EscrowReceivedERC721NFT(contractAddress, from, tokenId, msg.sender);
     }
     
     function childReceivedETH(address from, uint256 amount) external onlyEscrows
@@ -54,7 +53,6 @@ contract NFTer is Ownable, IERC721Receiver
     function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data) external virtual override returns (bytes4)
     {
         createChild(msg.sender, from, tokenId);
-        emit ReceivedERC721NFT(msg.sender, from, tokenId);
         return IERC721Receiver.onERC721Received.selector;
     }
 
@@ -96,16 +94,10 @@ contract NFTer is Ownable, IERC721Receiver
         escrows[contractAddress][tokenId] = escrow;
         activeEscrows[address(escrow)] = ERC721Metadata({
             owner: from,
-            operator: contractAddress,
+            contractAddress: contractAddress,
             tokenId: tokenId
         });
-    }
-
-    function sendChildERC721(address contractAddress, uint256 tokenId) external onlyOwner
-    {
-        require(address(escrows[contractAddress][tokenId]) != address(0), "Error: Escrow doesn't exist");
-        NFTerEscrow escrow = escrows[contractAddress][tokenId];
-        bytes memory encodedAddress = abi.encode(activeEscrows[address(escrow)]);
+        bytes memory encodedAddress = abi.encode(from);
         IERC721(contractAddress).safeTransferFrom(address(this), address(escrow), tokenId, encodedAddress);
     }
 
@@ -128,7 +120,7 @@ contract NFTer is Ownable, IERC721Receiver
 
     function getNFTDetails(address escrow) external view returns (address, uint256)
     {
-        return (activeEscrows[escrow].operator, activeEscrows[escrow].tokenId);
+        return (activeEscrows[escrow].contractAddress, activeEscrows[escrow].tokenId);
     }
 
     modifier onlyEscrows()
