@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Web3 from 'web3'
 
-import { authenticateAction } from './comps/authenticate'
 import ERC721 from './assets/ERC721.json'
+import { authenticateAction } from './comps/authenticate'
 
 function CreateNFTListing() {
     const navigate = useNavigate();
@@ -19,10 +19,10 @@ function CreateNFTListing() {
     const [tokenId, setTokenId] = useState('')
 
     useEffect(() => {
-        window.ethereum.request({ method: 'eth_accounts' })
+        window.ethereum.request({ method: 'eth_accounts', params: [{networkId: process.env.REACT_APP_NETWORK_ID}] })
         .then((accounts) => {
             if(accounts.length === 0) {
-                console.log('Please connect to MetaMask.');
+                navigate('/ConnectWallet');
             }
             else {
                 setSenderAddress(accounts[0]);
@@ -43,7 +43,6 @@ function CreateNFTListing() {
                 signature: signature
             }
         })
-        console.log(response.data);
         setNFT([...response.data]);
     }
 
@@ -64,6 +63,7 @@ function CreateNFTListing() {
             from: window.ethereum.selectedAddress,
             data: contract.methods.safeTransferFrom(senderAddress, '0xDeD80eA0c8a18F5274eeef5b27F2f56e6cd26Bf6', tokenId).encodeABI(),
             chainId: '0x3',
+            networkId: process.env.REACT_APP_NETWORK_ID
         };
         const txHash = await window.ethereum.request({
             method: 'eth_sendTransaction',
@@ -103,7 +103,7 @@ function CreateNFTListing() {
                         nft.map((datas, index) =>
                             <div key={datas.tokenID + "-" + index} onClick={(e) => selectNFT(index)}>
                                 <p>Choose an NFT to create an NFT Post:</p>
-                                <img src={datas.media.raw}/>
+                                <img src={datas.media[0].gateway}/>
                                 <p>{datas.metadata.title}</p>
                                 <p>{parseInt(datas.id.tokenId)}</p>
                             </div>

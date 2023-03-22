@@ -1,8 +1,9 @@
-import './styles/style.css';
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import logo from './assets/MetaMask_Fox.png';
 import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import logo from './assets/MetaMask_Fox.png';
+import './styles/style.css';
 
 function Browse() {
   const [listings, setListings] = useState([]);
@@ -41,7 +42,7 @@ function Browse() {
   }, [name]);
 
   async function submit() {
-    await window.ethereum.request({ method: 'eth_requestAccounts' })
+    await window.ethereum.request({ method: 'eth_requestAccounts', params: [{networkId: process.env.REACT_APP_NETWORK_ID}] })
       .then((accounts) => {
         if (accounts.length > 0) {
           navigate("/")

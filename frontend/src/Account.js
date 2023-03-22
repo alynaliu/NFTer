@@ -1,6 +1,7 @@
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+
 import logo from './assets/MetaMask_Fox.png';
 import { authenticateAction } from './comps/authenticate';
 
@@ -12,7 +13,7 @@ function Account() {
 
     // check if user is logged into a metamask account, otherwise forward them to login page
     useEffect(() => {
-        window.ethereum.request({ method: 'eth_accounts' })
+        window.ethereum.request({ method: 'eth_accounts', params: [{networkId: process.env.REACT_APP_NETWORK_ID}] })
             .then((accounts) => {
                 if (accounts.length > 0) {
                     setAuthenticated(true);

@@ -1,15 +1,16 @@
-import './styles/style.css';
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 import logo from './assets/MetaMask_Fox.png';
 import nfter from './assets/NFTer.png';
+import './styles/style.css';
 
 function ConnectWallet() {
 
   const navigate = useNavigate();
 
   useEffect(() => {
-      window.ethereum.request({ method: 'eth_accounts' })
+      window.ethereum.request({ method: 'eth_accounts', params: [{networkId: process.env.REACT_APP_NETWORK_ID}] })
           .then((accounts) => {
               if(accounts.length === 0) {
                   console.log('Please connect to MetaMask.');
@@ -22,7 +23,7 @@ function ConnectWallet() {
   }, []);
 
   async function submit() {
-      await window.ethereum.request({ method: 'eth_requestAccounts' })
+      await window.ethereum.request({ method: 'eth_requestAccounts', params: [{networkId: process.env.REACT_APP_NETWORK_ID}] })
           .then((accounts) => {
               if(accounts.length > 0) {
                   navigate("/")
@@ -50,7 +51,7 @@ function ConnectWallet() {
       </p>
       <br/><br/>
       <div>
-      <button><img src={logo} alt="Logo" padding='500px'/>MetaMask</button>
+      <button onClick={() => submit()}><img src={logo} alt="Logo" padding='500px'/>MetaMask</button>
       </div>
       </div>
       <div className='footer'>

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export async function authenticateAction(navigate) {
-    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    const accounts = await window.ethereum.request({ method: 'eth_accounts', params: [{networkId: process.env.REACT_APP_NETWORK_ID}] });
     
     //No active accounts
     if(accounts.length === 0) {
@@ -31,7 +31,8 @@ async function handleSign(publicAddress, nonce) {
         method: 'personal_sign',
         params: [
             publicAddress,
-            `Signing a one-time nonce: ${nonce}`
+            `Signing a one-time nonce: ${nonce}`,
+            {networkId: process.env.REACT_APP_NETWORK_ID}
         ],
         from: publicAddress
     });

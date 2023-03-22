@@ -1,8 +1,9 @@
-import './styles/style.css';
-import logo from './assets/MetaMask_Fox.png';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+
+import logo from './assets/MetaMask_Fox.png';
+import './styles/style.css';
 
 function Nft() {
     const [listing, setListing] = useState(0);
@@ -36,7 +37,7 @@ function Nft() {
     }, []);
 
     useEffect(() => {
-        window.ethereum.request({ method: 'eth_accounts' })
+        window.ethereum.request({ method: 'eth_accounts', params: [{networkId: process.env.REACT_APP_NETWORK_ID}] })
             .then((accounts) => {
                 if(accounts.length > 0) {
                     setAuthenticated(true);
@@ -45,7 +46,7 @@ function Nft() {
     }, []);
 
     async function connect() {
-        await window.ethereum.request({ method: 'eth_requestAccounts' })
+        await window.ethereum.request({ method: 'eth_requestAccounts', params: [{networkId: process.env.REACT_APP_NETWORK_ID}] })
             .then((accounts) => {
                 setAuthenticated(true);
             })

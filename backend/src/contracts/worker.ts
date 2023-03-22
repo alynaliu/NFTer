@@ -55,7 +55,7 @@ export function BlockchainWorker()
                         const currentTime = await contract.methods.getTime();
                         const expiry = currentTime.add(86400 * rental.days);
                         await contract.methods.rentNFT(listing.contractAddress, listing.tokenID, rental.renterPublicAddress, expiry);
-                        await contract.methods.payOwner(listing.ownerPublicAddress, event.returnValues.amount * (1 - process.env.MARKETPLACE_FEE));
+                        await contract.methods.payOwner(listing.ownerPublicAddress, event.returnValues.amount);
                 }
                 if(error) {
                         console.log(error);
