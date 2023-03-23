@@ -23,7 +23,6 @@ function Browse() {
         },
       })
       .then((res) => {
-        console.log(res.data);
         const data = res.data;
         const foundData = [];
         // display everything if search bar is blank, or filter results that user searched for only
