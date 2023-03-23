@@ -60,47 +60,51 @@ function Nft() {
             });
     }
 
-     async function rent(){
-   
+    async function rent(){
+        //RENTAL CODE GOES HERE
     }
 
     return (
       <div>
-      <Nav />
-        <div className='nftdisplay'>
-            <div className='imageSide'>
-                <img src={listing.imageUrl}/>
-            </div>
-            <div className='infoSide'>
-                <p>Lender: {listing.ownerPublicAddress}</p>
-                <p className='subtle'>Collection</p>
-                <p className='nftName'>{listing.name}</p>
-                <p className='subtle'>{listing.tokenID+" | "+listing.contractType+" | "+listing.contractAddress}</p>
-                <p>{listing.description}</p>
-                <input placeholder='Rent Duration (30 days Max)' onChange={handleChange}></input>
-                <div>
-                    <p className='alignleft'>Daily price</p>
-                    <p className='alignright'>{listing.rentalRate + ' ETH'}</p>
+        <Nav />
+        <div className="hero is-fullheight-with-navbar">
+            <div className="hero-body">
+                <div className="container">
+                    <div className="nft_view">
+                        <img src={listing.imageUrl} />
+                        <div className="has-text-justified">
+                            <p className="title">NFT Details</p>
+                            <p><strong>Lender:</strong> <a href={`https://testnets.opensea.io/${listing.ownerPublicAddress}`} target="_blank">{listing.ownerPublicAddress}</a></p>
+                            <p><strong>NFT Name:</strong> {listing.name}</p>
+                            <p><strong>Token ID:</strong> {listing.tokenID}</p>
+                            <p><strong>Token Type:</strong> {listing.tokenType}</p>
+                            <p><strong>Contract Address:</strong> {listing.contractAddress}</p>
+                            <br />
+                            <p>{listing.description}</p>
+
+                            <hr className='clear'></hr>
+                            <p><strong>Daily Price:</strong> {`${listing.rentalRate} MATIC`}</p>
+                            <div className="is-flex is-align-items-center my-3">
+                                <label className="label my-0 mr-3">Rental Duration in Days (30 Days Max):</label>
+                                <div className="field">
+                                    <div className="control">
+                                        <input className="input" type="text" name="rentalDays" onChange={handleChange} />
+                                    </div>
+                                </div>
+                            </div>
+                            <p><strong>Total Rental Cost:</strong> {`${listing.rentalRate * period} MATIC`}</p>
+                            {
+                                authenticated ?
+                                <button className="button mt-4 is-info" onClick={() => rent()}>Rent Now!</button> :
+                                <button className="button mt-4 is-info" onClick={() => connect()}>Connect to wallet to rent</button>
+                            }
+                        </div>
+                    </div>
                 </div>
-                <hr className='clear'></hr>
-                <div >
-                    <p className='alignleft'>Total amount</p>
-                    <p className='alignright'>{(listing.rentalRate * period) + ' ETH'}</p>
-                </div>
-                <div className='clear'></div>
-                {
-                    authenticated ?
-                        period > 0 ?
-                        <button onClick={() => rent()} className='clear available' > Rent Now!</button>
-                        :
-                        <button className='clear unavailable' > Rent Now!</button>
-                    :
-                    <button className='clear' onClick={() => connect()}> Connect to wallet to rent</button>
-                }
             </div>
         </div>
       </div>
     );
-  }
+}
   
-  export default Nft;
+export default Nft;
