@@ -23,18 +23,6 @@ export module NFT {
     });
 
     /**
-     * PURPOSE: Returns rental history of a single NFT
-     * USAGE: Display past and current NFT rentals onto the user interface
-     */
-    router.get('/nfthistory', async (req: Request, res: Response) => {
-        const { id } = req.query;
-        const rental = await Rentals.find({listingID: id}).lean()
-        if(!rental)
-            return res.sendStatus(401);
-        return res.send(rental);
-    });
-
-    /**
      * PURPOSE: Returns detailed information on a single NFT rental listing
      * USAGE: Display NFT rental onto the user interface
      */

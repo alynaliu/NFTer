@@ -50,7 +50,6 @@ function Account() {
     }, [isAuthenticated]);
 
     async function remove(id) {
-        
         let answer = window.confirm ("Would you like to delete this listing?");
         if (answer) {
             const [ publicAddress, signature ] = await authenticateAction(navigate);
@@ -65,28 +64,47 @@ function Account() {
                 alert ('Your listing has been deleted.')
               });
         }        
-      }
+    }
 
     return (     
         <div>
             <Nav />
-            {
-            listings.map((list, index) =>
-                <div className='nftdisplay'>
-                    <div className='imageSide'>
-                        <img src={list.imageUrl} />
-                    </div>
-                    <div className='infoSide'>
-                        <p>Lender: {account}</p>
-                        <p className='subtle'>Collection</p>
-                        <p className='nftName'>{list.name}</p>
-                        <hr className='clear'></hr>
-                        <button id = {'edit' + index} onClick={() => navigate('/editnft?id=' + list._id)}> Edit </button>
-                        <button id = {'delete' + index} onClick={() => remove(list._id)}> Delete </button>
+            <div className="hero is-fullheight-with-navbar">
+                <div className="hero-body is-align-items-flex-start">
+                    <div className="container has-text-centered">
+                        <p className="title">Your Current NFT Rental Listings</p>
+                        {
+                            listings.length > 0 ?
+                                <div className="is-flex is-flex-wrap-wrap is-justify-content-center my-1">
+                                    {
+                                        listings.map((list, index) =>
+                                            <div className="card nft_card default_cursor">
+                                                <div className="card-image">
+                                                    <figure className="image is-square">
+                                                        <img className="has-ratio" src={list.imageUrl} />
+                                                    </figure>
+                                                </div>
+                                                <div className="card-content is-flex is-flex-direction-column is-align-items-center">
+                                                    <p>{list.name}</p>
+                                                    <div className="buttons mt-2">
+                                                        <button className="button is-info" onClick={() => navigate('/nft?id=' + list._id)}>View</button>
+                                                        <button className="button is-info" onClick={() => navigate('/editnft?id=' + list._id)}>Edit</button>
+                                                        <button className="button is-danger" onClick={() => remove(list._id)}>Delete</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )
+                                    }
+                                </div>
+                            :
+                                <div>
+                                    <p className="subtitle">No current NFT Rental Listings.</p>
+                                    <button className="button is-info" onClick={() => navigate('/CreateNft')}>Make One!</button>
+                                </div>
+                        }
                     </div>
                 </div>
-                )
-            }
+            </div>
         </div>
     );
 }

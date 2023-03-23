@@ -164,7 +164,7 @@ function CreateNFTListing() {
                                             </div>
                                         </div>
                                     </div>
-                                    <button className="button is-info my-3" onClick={() => createNFT()}> Create NFT Listing</button>
+                                    <button className="button is-info my-3" onClick={() => createNFT()}>Create NFT Listing</button>
                                 </div>
                             }
                         </div>
