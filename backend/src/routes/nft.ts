@@ -105,8 +105,11 @@ export module NFT {
     router.get('/rent', verifySignature, async (req: Request, res: Response) => {
         const { publicAddress } = req.query;
 
-        const rentals = await Rentals.find({renterPublicAddress: publicAddress}).lean();
-        return res.send(rentals);
+        const pendingRentals = await PendingRentals.find({renterPublicAddress: publicAddress}).lean();
+        const activeRentals = await Rentals.find({renterPublicAddress: publicAddress}).lean();
+        const archivedRentals = await ArchivedRentals.find({renterPublicAddress: publicAddress}).lean();
+
+        return res.send({ pendingRentals, activeRentals, archivedRentals });
     });
 
     /**
@@ -125,7 +128,7 @@ export module NFT {
         await new PendingRentals({
             listingID: listingID,
             days: daysRentedFor,
-            renterPublicAddress: publicAddress,
+            renterPublicAddress: (publicAddress as string).toLowerCase(),
             transactionHash: transactionHash,
             price: listing.rentalRate * daysRentedFor
         }).save();
