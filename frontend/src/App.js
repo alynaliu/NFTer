@@ -4,7 +4,8 @@ import ConnectWallet from "./ConnectWallet";
 import CreateNFT from "./CreateNFT";
 import EditNFT from "./EditNFT";
 import Nft  from "./Nft";
-import Account from "./Account"
+import Account from "./Account";
+import NFTRentalHistory from "./NFTRentalHistory";
 
 
 import {
@@ -25,6 +26,7 @@ function App (){
           <Route path="/editnft" element={<EditNFT/>}/>
           <Route path="/nft" element={<Nft/>}/>
           <Route path="/account" element={<Account/>}/>
+          <Route path="/nftrentalhistory" element={<NFTRentalHistory/>}/>
         </Routes>
       </Router>
     );

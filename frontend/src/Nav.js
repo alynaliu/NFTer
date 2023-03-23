@@ -36,7 +36,7 @@ function Navbar() {
                         <Link className="navbar-item" to="/CreateNft">Create Listing</Link>
                         {/* Add links here */}
                         <Link className="navbar-item" to="/account">My Listings</Link>
-                        <Link className="navbar-item" to="/">Rental History</Link>
+                        <Link className="navbar-item" to="/nftrentalhistory">Rental History</Link>
                     </div>
                 </div>
             </nav>
