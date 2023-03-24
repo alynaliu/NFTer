@@ -10,15 +10,9 @@ contract TestNFT is ERC721Enumerable, Ownable, IERC4907 {
     using Counters for Counters.Counter;
     
     Counters.Counter private _tokenIds;
-
-    struct UserInfo
-    {
-        address user;   // address of user role
-        uint64 expires; // unix timestamp, user expires
-    }
-
-    mapping (uint256  => UserInfo) internal _users;
-    mapping (uint256 => string) internal _tokenURIs;
+    mapping (uint256  => address) private _users;
+    mapping (uint256  => uint256) private _expirations;
+    mapping (uint256 => string) private _tokenURIs;
 
     constructor(string memory name_, string memory symbol_) ERC721(name_,symbol_)
     {
@@ -26,51 +20,16 @@ contract TestNFT is ERC721Enumerable, Ownable, IERC4907 {
         _tokenIds.increment();
     }
 
-    function setUser(uint256 tokenId, address user, uint64 expires) public virtual
+    function mintNFT(address wAddress) public onlyOwner
     {
-        require(_isApprovedOrOwner(msg.sender, tokenId),"ERC721: transfer caller is not owner nor approved");
-        UserInfo info =  _users[tokenId];
-
-        require(info.expires < block.timestamp, "Already rented to someone");
-
-        _users[tokenId] = UserInfo({
-            user: user,
-            expires: expires
-        });
-        emit UpdateUser(tokenId,user,expires);
-    }
-
-    function userOf(uint256 tokenId)public view virtual returns(address)
-    {
-        if( uint256(_users[tokenId].expires) >=  block.timestamp){
-            return  _users[tokenId].user;
-        }
-        else{
-            return address(0);
-        }
-    }
-
-    function userExpires(uint256 tokenId) public view virtual returns(uint256)
-    {
-        return _users[tokenId].expires;
-    }
-
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool)
-    {
-        return interfaceId == type(IERC4907).interfaceId || super.supportsInterface(interfaceId);
-    }
-
-    function time() public view returns (uint256)
-    {
-        return block.timestamp;
-    }
-    
-    function mintNFT(address wAddress, string memory metadata) public onlyOwner
-    {
-        uint newTokenID = _tokenIds.current();
-        _safeMint(wAddress, newTokenID);
+        uint tokenID = _tokenIds.current();
+        _safeMint(wAddress, tokenID);
         _tokenIds.increment();
-        _tokenURIs[newTokenID] = metadata;
+    }
+
+    function setMetadata(uint256 tokenId, string memory metadata) public onlyOwner
+    {
+        _tokenURIs[tokenId] = metadata;
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory)
@@ -79,8 +38,26 @@ contract TestNFT is ERC721Enumerable, Ownable, IERC4907 {
         return _tokenURIs[tokenId];
     }
 
-    function getCurrentTokenID() public view returns (uint256)
+    function setUser(uint256 tokenId, address user, uint64 expires) external
     {
-        return _tokenIds.current();
+        require(_isApprovedOrOwner(msg.sender, tokenId),"ERC721: transfer caller is not owner nor approved");
+        _users[tokenId] = user;
+        _expirations[tokenId] = uint256(expires);
+        emit UpdateUser(tokenId, user, expires);
+    }
+
+    function userOf(uint256 tokenId) external view returns(address)
+    {
+        if(_expirations[tokenId] >=  block.timestamp){
+            return _users[tokenId];
+        }
+        else{
+            return address(0);
+        }
+    }
+
+    function userExpires(uint256 tokenId) external view returns(uint256)
+    {
+        return _expirations[tokenId];
     }
 }
