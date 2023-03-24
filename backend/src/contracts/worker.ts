@@ -1,8 +1,5 @@
-// @ts-nocheck
 import dotenv from 'dotenv'
-import Accounts from 'web3-eth-accounts'
-import Web3EthContract from 'web3-eth-contract'
-import Web3WsProvider from 'web3-providers-ws'
+import { ethers, AlchemyProvider, Log } from 'ethers'
 import Web3Utils from 'web3-utils'
 
 import NFTer from './NFTer.json'
@@ -11,71 +8,56 @@ import { PendingRentals, Rentals } from '../models/rental'
 
 dotenv.config();
 
-const provider = new Web3WsProvider(`wss://${process.env.WEB3_PROVIDER}`);
-const accounts = new Accounts(provider);
-const account = accounts.privateKeyToAccount(process.env.OWNER_PRIVATE_KEY);
-
-Web3EthContract.setProvider(provider);
-const contract = new Web3EthContract(NFTer.abi, process.env.CONTRACT_ADDRESS, {
-        from: account.address
-});
+const alchemy = new AlchemyProvider('maticmum', process.env.ALCHEMY_API_KEY);
+const account = new ethers.Wallet(process.env.OWNER_PRIVATE_KEY as string, alchemy);
+const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, NFTer.abi, account);
 
 export function BlockchainWorker()
 {
-        contract.events.EscrowReceivedERC721NFT(async (error, event) => {
-                if(event) {
-                        const pendingListing = await PendingListings.findOne({transactionHash: event.transactionHash});
-                        if(!pendingListing)
-                                return;
+        contract.on('EscrowReceivedERC721NFT', async (contractAddress: string, from: string, tokenId: number, escrow: string, log: Log) => {
+                const pendingListing = await PendingListings.findOne({transactionHash: log.transactionHash});
+                if(!pendingListing) return;
                         
-                        const listing = new Listings(pendingListing.toJSON());
-                        await listing.save();
-                        await pendingListing.remove();
-                }
-                if(error) {
-                        console.log(error);
-                }
+                const listing = new Listings(pendingListing.toJSON());
+                await listing.save();
+                await pendingListing.remove();
         });
 
-        contract.events.ReceivedETH(async (error, event) => {
-                if(event) {
-                        const pendingRental = await PendingRentals.findOne({transactionHash: event.transactionHash});
-                        const weiValue = Web3Utils.toWei(pendingRental.price, 'ether');
-                        if(!pendingListing || event.returnValues.amount !== weiValue)
-                                return;
-                        
-                        const rental = new Rentals(pendingRental.toJSON());
-                        rental.rentedFrom = Date.now();
-                        const rentedUntil = new Date();
-                        rental.rentedUntil = rentedUntil.setDate(rentedUntil.getDate() + rental.days);
-                        await rental.save();
-                        await pendingRental.remove();
-
-                        const listing = await Listings.findOne({_id: rental.listingID});
-                        const currentTime = await contract.methods.getTime();
-                        const expiry = currentTime.add(86400 * rental.days);
-                        await contract.methods.rentNFT(listing.contractAddress, listing.tokenID, rental.renterPublicAddress, expiry);
-                        await contract.methods.payOwner(listing.ownerPublicAddress, event.returnValues.amount);
-                }
-                if(error) {
-                        console.log(error);
-                }
+        contract.on('ReceivedETH', async (from: string, amount: number, escrow: string, log: Log) => {
+                const pendingRental = await PendingRentals.findOne({transactionHash: log.transactionHash});
+                //Set this as MATIC instead
+                
+                const weiValue = Web3Utils.toWei(Web3Utils.toBN(pendingRental.price), 'ether');
+                if(!pendingRental || Web3Utils.toBN(amount).eq(weiValue)) return;
+                
+                const rental = new Rentals(pendingRental.toJSON());
+                rental.rentedFrom = new Date();
+                const rentedUntil = new Date();
+                rentedUntil.setDate(rentedUntil.getDate() + rental.days);
+                rental.rentedUntil = rentedUntil;
+                await rental.save();
+                await pendingRental.remove();
+                const listing = await Listings.findOne({_id: rental.listingID});
+                const currentTime = await contract.getTime();
+                const expiry = currentTime.add(86400 * rental.days);
+                await contract.rentNFT(listing.contractAddress, listing.tokenID, rental.renterPublicAddress, expiry);
+                await contract.payOwner(listing.ownerPublicAddress, amount);
         });
 }
 
-export async function BlockchainRentNFT(contractAddress: string, tokenId: int, renterAddress: string,  expires: int)
+export async function BlockchainRentNFT(contractAddress: string, tokenId: number, renterAddress: string,  expires: number)
 {
-        await contract.methods.rentNFT(contractAddress, tokenId, renterAddress, expires);
+        await contract.rentNFT(contractAddress, tokenId, renterAddress, expires);
 }
 
-export async function BlockchainReturnNFT(contractAddress: string, tokenId: int)
+export async function BlockchainReturnNFT(contractAddress: string, tokenId: number)
 {
-        const output = await contract.methods.returnNFT(contractAddress, tokenId);
+        const output = await contract.returnNFT(contractAddress, tokenId);
         return output;
 }
 
-export async function PayOwner(contractAddress: string, tokenId: int, _to: string)
+export async function PayOwner(contractAddress: string, tokenId: number, _to: string)
 {
-        const output = await contract.methods.payOwner(contractAddress, tokenId, _to);    
+        const output = await contract.payOwner(contractAddress, tokenId, _to);    
         return output;    
 }
