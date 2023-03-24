@@ -17,6 +17,7 @@ async function main() {
 
   //On mint
   contract.on('Transfer', async (from, to, tokenId) => {
+    if(from !== "0x0000000000000000000000000000000000000000") return;
     console.log(`NFT ${tokenId} Minted`);
 
     const imageId = tokenId.toNumber() % 10;
