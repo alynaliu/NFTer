@@ -14,6 +14,10 @@ const alchemy = new ethers.providers.AlchemyProvider(
 const account = new ethers.Wallet(process.env.PRIVATE_KEY as string, alchemy);
 const contract = new ethers.Contract(process.env.NFTER_CONTRACT, NFTer.abi, account);
 const NFTcontract = new ethers.Contract(process.env.TESTNFT_CONTRACT, IERC4907.abi, account);
+const escrowAddress = "0x6A1C17CF81424CC920a268Ec8903f0f1De8c6E35";
+const renterAddress = "0xB9C66b08b1993C170f52381fadD85415b1819887";
+const ownerAddress = "0x57d988e4C48fC2ed50fd13BDde47F677d0812bA7";
+const tokenId = 7;
 
 //First create a test NFTer and TestNFT contract with the commands in the readme.
 
@@ -21,22 +25,48 @@ const NFTcontract = new ethers.Contract(process.env.TESTNFT_CONTRACT, IERC4907.a
 /* To test: go to OpenSea, send the NFT to test contract. 
 Go to mumbai.polygonscan.com to see if a child contract is made and if the NFT was moved to that escrow.*/
 
-function testIERC4907() {
-    NFTcontract.on('UpdateUser',async (tokenId, user, expires) => {
+async function testRentNFT(){
+    const expires = parseInt(await contract.getTime()) + 100;
+    await contract.rentNFT(process.env.TESTNFT_CONTRACT, tokenId, renterAddress, expires)
+}
+
+async function testReturnNFT(){
+    console.log(await contract.payOwner(process.env.TESTNFT_CONTRACT, tokenId, ownerAddress));
+    console.log(await contract.returnNFT(process.env.TESTNFT_CONTRACT, tokenId, {gasLimit:30000}));    
+}
+
+async function testGetters(){
+    const escrow = await contract.getEscrowAddress(process.env.TESTNFT_CONTRACT, tokenId);
+    console.log (escrow);
+    const nft_Detail = await contract.getNFTDetails(escrowAddress);
+    console.log (nft_Detail);
+
+    const renterAddress = "0xB9C66b08b1993C170f52381fadD85415b1819887";
+}
+
+async function testIERC4907() {
+    NFTcontract.on('UpdateUser', async (tokenId, user, expires) => {
         console.log(tokenId, user, expires);
     });
-    console.log(await NFTcontract.userOf(1));
-    console.log(await NFTcontract.userExpires(1));
-    await NFTcontract.setUser(1, "0x57d988e4C48fC2ed50fd13BDde47F677d0812bA7", 1679690000);
+    await NFTcontract.setUser(1, "0xB9C66b08b1993C170f52381fadD85415b1819887", 1679690000);
     console.log(await NFTcontract.userOf(1));
     console.log(await NFTcontract.userExpires(1));
 }
 
 async function main() {
-    //Verify that the smart contract is working
-    console.log(await contract.methods.getTime());
+    // subscribe to new user update
+    NFTcontract.on('UpdateUser', async (tokenId, user, expires) => {
+        console.log(tokenId, user, expires);
+    });
 
-    testIERC4907
+    //Verify that the smart contract is working
+    console.log(await contract.getTime());
+    //testGetters();
+    //testRentNFT();
+    testReturnNFT();
+
+    console.log ('Sleeping for 60 seconds');
+    await new Promise(r => setTimeout(r, 60000));
 }
 
 main()
