@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express'
 
 import { verifySignature } from '../config/authenticate'
 import { getNFTMetadata, verifyNFTHolder } from '../config/blockchain'
-import { BlockchainReturnNFT } from '../contracts/worker'
+import { BlockchainGetTime, BlockchainRentNFT, BlockchainReturnNFT } from '../contracts/worker'
 import { ArchivedListings, Listings, PendingListings } from '../models/listing'
 import { ArchivedRentals, PendingRentals, Rentals } from '../models/rental'
 
@@ -123,15 +123,38 @@ export module NFT {
         if(!listing || listing.available == false || daysRentedFor > listing.maxRentalPeriod)
             return res.sendStatus(400);
         listing.available = false;
-        await listing.save();
+        //await listing.save();
         
-        await new PendingRentals({
-            listingID: listingID,
-            days: daysRentedFor,
-            renterPublicAddress: (publicAddress as string).toLowerCase(),
-            transactionHash: transactionHash,
-            price: listing.rentalRate * daysRentedFor
-        }).save();
+        //See if the Blockchain worker already created a pending rental
+        const pendingRental = await PendingRentals.findOne({transactionHash: transactionHash});
+        if(pendingRental) {
+            const price = listing.rentalRate * daysRentedFor;
+            if(price !== pendingRental.price) return;
+
+            //Delete pending rental and create active rental
+            const rental = new Rentals(pendingRental.toJSON());
+            rental.listingID = listingID;
+            rental.days = daysRentedFor;
+            rental.rentedFrom = new Date();
+            const rentedUntil = new Date();
+            rentedUntil.setDate(rentedUntil.getDate() + rental.days);
+            rental.rentedUntil = rentedUntil;
+            await rental.save();
+            await pendingRental.remove();
+
+            const currentTime = await BlockchainGetTime();
+            const expiry = currentTime.add(86400 * rental.days);
+            await BlockchainRentNFT(listing.contractAddress, listing.tokenID, rental.renterPublicAddress, expiry);
+        }
+        else {
+            await new PendingRentals({
+                listingID: listingID,
+                days: daysRentedFor,
+                renterPublicAddress: (publicAddress as string).toLowerCase(),
+                transactionHash: transactionHash,
+                price: listing.rentalRate * daysRentedFor
+            }).save();
+        }
 
         return res.sendStatus(200);
     });

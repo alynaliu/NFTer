@@ -18,6 +18,23 @@ function Navbar() {
         });
     }, []);
 
+    async function addMATICNetwork() {
+        await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+                chainId: '0x13881',
+                chainName: 'Matic Mumbai Testnet',
+                nativeCurrency: {
+                    name: 'MATIC',
+                    symbol: 'MATIC',
+                    decimals: 18
+                },
+                rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
+                blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
+            }]
+        });
+    }
+
     if (authenticated){  
         return (
             <nav className="navbar" role="navigation" aria-label="main navigation">
@@ -56,8 +73,9 @@ function Navbar() {
                 </div>
 
                 <div id="navbar" className="navbar-menu">
-                    <div className="navbar-end">
+                    <div className="navbar-end is-align-items-center">
                         <Link className="navbar-item" to="/login">Connect Wallet</Link>
+                        <button className="button" onClick={() => addMATICNetwork()}>Add MATIC Network</button>
                     </div>
                 </div>
             </nav>

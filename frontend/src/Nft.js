@@ -1,20 +1,20 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import Web3 from 'web3';
 
 import logo from './assets/MetaMask_Fox.png';
+import { authenticateAction } from './comps/authenticate'
 import Nav from "./Nav";
 
 function Nft() {
+    const navigate = useNavigate();
+    const web3 = new Web3(Web3.givenProvider);
+
     const [listing, setListing] = useState(0);
     const [period, setPeriod] = useState(0);
     const [authenticated,setAuthenticated] = useState(false);
     const [searchParams]=useSearchParams();
-    const transactionParameters = {
-        to: '0x0000000000000000000000000000000000000000', // Required except during contract publications.
-        from: window.ethereum.selectedAddress, // must match user's active address.
-        value: '0x00', // Only required to send ether to the recipient from the initiating external account.
-      };
 
     const handleChange = event => {
         let result =event.target.value.replace(/\D/g, '');
@@ -61,7 +61,42 @@ function Nft() {
     }
 
     async function rent(){
-        //RENTAL CODE GOES HERE
+        try {
+            const current_chainId = await window.ethereum.chainId;
+            if(current_chainId !== '0x13881') {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0x13881' }]
+                });
+            }
+            const escrowAddress = (await axios.get("/api/smart_contract/escrow/address")).data;
+            //MATIC has this amount in USD
+            const amount = web3.utils.toWei((listing.rentalRate * period).toString(), 'ether');
+            const transactionReceipt = await web3.eth.sendTransaction({
+                to: escrowAddress, 
+                from: window.ethereum.selectedAddress, 
+                value: amount});
+
+            const [publicAddress, signature] = await authenticateAction(navigate);
+            const response = await axios.post("/api/nft/rent", {
+                listingID: listing._id,
+                daysRentedFor: period,
+                transactionHash: transactionReceipt.transactionHash
+            }, {
+                params: {
+                    signature: signature,
+                    publicAddress: publicAddress
+                }
+            });
+
+            if(response.status === 200)
+            {
+                alert('Now processing rental.');
+                navigate('/');
+            }
+        } catch (e) {
+            console.log(e)
+        }
     }
 
     return (

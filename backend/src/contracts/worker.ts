@@ -23,41 +23,54 @@ export function BlockchainWorker()
                 await pendingListing.remove();
         });
 
-        contract.on('ReceivedETH', async (from: string, amount: number, escrow: string, log: Log) => {
+        contract.on('ReceivedETH', async (from: string, amount: any, escrow: string, log: Log) => {
+                //See if the backend already created a pending rental
                 const pendingRental = await PendingRentals.findOne({transactionHash: log.transactionHash});
-                //Set this as MATIC instead
-                
-                const weiValue = Web3Utils.toWei(Web3Utils.toBN(pendingRental.price), 'ether');
-                if(!pendingRental || Web3Utils.toBN(amount).eq(weiValue)) return;
-                
-                const rental = new Rentals(pendingRental.toJSON());
-                rental.rentedFrom = new Date();
-                const rentedUntil = new Date();
-                rentedUntil.setDate(rentedUntil.getDate() + rental.days);
-                rental.rentedUntil = rentedUntil;
-                await rental.save();
-                await pendingRental.remove();
-                const listing = await Listings.findOne({_id: rental.listingID});
-                const currentTime = await contract.getTime();
-                const expiry = currentTime.add(86400 * rental.days);
-                await contract.rentNFT(listing.contractAddress, listing.tokenID, rental.renterPublicAddress, expiry);
-                await contract.payOwner(listing.ownerPublicAddress, amount);
+                if(pendingRental) {
+                        const price = Number(amount) / Math.pow(10, 18);
+                        if(price !== pendingRental.price) return;
+
+                        //Delete pending rental and create active rental
+                        const rental = new Rentals(pendingRental.toJSON());
+                        rental.rentedFrom = new Date();
+                        const rentedUntil = new Date();
+                        rentedUntil.setDate(rentedUntil.getDate() + rental.days);
+                        rental.rentedUntil = rentedUntil;
+                        await rental.save();
+                        await pendingRental.remove();
+
+                        const listing = await Listings.findOne({_id: rental.listingID});
+                        const currentTime = await contract.getTime();
+                        const expiry = currentTime.add(86400 * rental.days);
+                        await contract.rentNFT(listing.contractAddress, listing.tokenID, rental.renterPublicAddress, expiry);
+                }
+                else {
+                        const price = Number(amount) / Math.pow(10, 18);
+                        await new PendingRentals({
+                                renterPublicAddress: from.toLowerCase(),
+                                transactionHash: log.transactionHash,
+                                price: price
+                        }).save();
+                }
         });
+}
+
+export async function BlockchainGetTime()
+{
+        return await contract.getTime();
 }
 
 export async function BlockchainRentNFT(contractAddress: string, tokenId: number, renterAddress: string,  expires: number)
 {
-        await contract.rentNFT(contractAddress, tokenId, renterAddress, expires);
+        return await contract.rentNFT(contractAddress, tokenId, renterAddress, expires);
 }
 
 export async function BlockchainReturnNFT(contractAddress: string, tokenId: number)
 {
-        const output = await contract.returnNFT(contractAddress, tokenId);
-        return output;
+        return await contract.returnNFT(contractAddress, tokenId);
 }
 
 export async function PayOwner(contractAddress: string, tokenId: number, _to: string)
 {
-        const output = await contract.payOwner(contractAddress, tokenId, _to);    
-        return output;    
+        return await contract.payOwner(contractAddress, tokenId, _to);  
 }
