@@ -6,6 +6,7 @@ import { Account } from './routes/account'
 import { NFT } from './routes/nft'
 import { SmartContract } from './routes/smartcontract'
 import { BlockchainWorker } from './contracts/worker'
+import { RunCronJob } from './contracts/cron'
 
 dotenv.config();
 Database.connect();
@@ -23,4 +24,5 @@ app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`)
 })
 
+RunCronJob();
 BlockchainWorker();

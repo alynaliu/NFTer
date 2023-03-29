@@ -4,7 +4,7 @@ import Web3Utils from 'web3-utils'
 
 import NFTer from './NFTer.json'
 import { Listings, PendingListings } from '../models/listing'
-import { PendingRentals, Rentals } from '../models/rental'
+import { ArchivedRentals, PendingRentals, Rentals } from '../models/rental'
 
 dotenv.config();
 
@@ -23,7 +23,7 @@ export function BlockchainWorker()
                 await pendingListing.remove();
         });
 
-        contract.on('ReceivedETH', async (from: string, amount: any, escrow: string, log: Log) => {
+        contract.on('ReceivedETH', async (from: string, amount: bigint, escrow: string, log: Log) => {
                 //See if the backend already created a pending rental
                 const pendingRental = await PendingRentals.findOne({transactionHash: log.transactionHash});
                 if(pendingRental) {
@@ -53,6 +53,26 @@ export function BlockchainWorker()
                         }).save();
                 }
         });
+
+        contract.on('PayedETH', async (renter: string, owner: string, amount: bigint, escrow: string, log: Log) => {
+                const [contractAddress, tokenId] = await BlockchainGetNFTDetails(escrow);
+                const listing = await Listings.findOne({
+                        ownerPublicAddress: owner,
+                        contractAddress: contractAddress,
+                        tokenID: tokenId
+                });
+                const rental = await Rentals.findOne({
+                        listingID: listing._id,
+                        renterPublicAddress: renter
+                })
+
+                const archivedRental = new ArchivedRentals(rental.toJSON());
+                await archivedRental.save();
+                await rental.remove();
+
+                listing.available = true;
+                await listing.save();
+        });
 }
 
 export async function BlockchainGetTime()
@@ -65,6 +85,12 @@ export async function BlockchainGetEscrowAddress(contractAddress: string, tokenI
         return await contract.getEscrowAddress(contractAddress, tokenId);
 }
 
+export async function BlockchainGetNFTDetails(escrow: string)
+{
+        const [contractAddress, tokenId] =  await contract.getNFTDetails(escrow);
+        return [contractAddress, tokenId];
+}
+
 export async function BlockchainRentNFT(contractAddress: string, tokenId: number, renterAddress: string,  expires: number)
 {
         return await contract.rentNFT(contractAddress, tokenId, renterAddress, expires);
@@ -75,7 +101,7 @@ export async function BlockchainReturnNFT(contractAddress: string, tokenId: numb
         return await contract.returnNFT(contractAddress, tokenId);
 }
 
-export async function PayOwner(contractAddress: string, tokenId: number, _to: string)
+export async function BlockchainPayOwner(contractAddress: string, tokenId: number, _to: string)
 {
         return await contract.payOwner(contractAddress, tokenId, _to);  
 }
