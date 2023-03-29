@@ -60,6 +60,11 @@ export async function BlockchainGetTime()
         return await contract.getTime();
 }
 
+export async function BlockchainGetEscrowAddress(contractAddress: string, tokenId: number)
+{
+        return await contract.getEscrowAddress(contractAddress, tokenId);
+}
+
 export async function BlockchainRentNFT(contractAddress: string, tokenId: number, renterAddress: string,  expires: number)
 {
         return await contract.rentNFT(contractAddress, tokenId, renterAddress, expires);

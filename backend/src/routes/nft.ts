@@ -123,7 +123,7 @@ export module NFT {
         if(!listing || listing.available == false || daysRentedFor > listing.maxRentalPeriod)
             return res.sendStatus(400);
         listing.available = false;
-        //await listing.save();
+        await listing.save();
         
         //See if the Blockchain worker already created a pending rental
         const pendingRental = await PendingRentals.findOne({transactionHash: transactionHash});

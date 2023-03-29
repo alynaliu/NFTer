@@ -69,7 +69,12 @@ function Nft() {
                     params: [{ chainId: '0x13881' }]
                 });
             }
-            const escrowAddress = (await axios.get("/api/smart_contract/escrow/address")).data;
+            const escrowAddress = (await axios.get("/api/smart_contract/escrow/address", {
+                params: {
+                    contractAddress: listing.contractAddress,
+                    tokenId: listing.tokenID
+                }
+            })).data;
             //MATIC has this amount in USD
             const amount = web3.utils.toWei((listing.rentalRate * period).toString(), 'ether');
             const transactionReceipt = await web3.eth.sendTransaction({
