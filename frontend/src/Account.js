@@ -61,7 +61,19 @@ function Account() {
                 }
               })
               .then((res) => {
-                alert ('Your listing has been deleted.')
+                switch(res.status) {
+                    case 401:
+                        alert("Listing does not exist or you're not authorized to delete this.")
+                        break;
+                    case 406:
+                        alert("There are currently active rentals. Please try again once those rentals are completed.")
+                        break;
+                    case 200:
+                        alert("Request is queued. Listing will be deleted and NFT will be returned")
+                        break;
+                    default:
+                        alert('An unknown server error has occured.')
+                }
               });
         }        
     }

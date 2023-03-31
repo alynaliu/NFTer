@@ -89,16 +89,14 @@ export module NFT {
     router.delete('/listing', verifySignature, async (req: Request, res: Response) => {
         const { publicAddress, listingID } = req.query;
 
+        //Listing must belong to the requester
         const listing = await Listings.findOne({ _id: listingID });
-        if(!listing || listing?.ownerPublicAddress !== publicAddress)
-            return res.sendStatus(401);
-        
-        const archivedListing = new ArchivedListings(listing.toJSON());
-        await archivedListing.save();
-        await listing.remove();
+        if(!listing || listing?.ownerPublicAddress !== publicAddress) return res.sendStatus(401);
+        //Listing must not have any active rentals
+        const rentals = await Rentals.find({ listingID: listingID })
+        if(rentals) return res.sendStatus(406);
 
-        await BlockchainReturnNFT(archivedListing.contractAddress, archivedListing.tokenID);
-
+        BlockchainReturnNFT(listing.contractAddress, listing.tokenID);
         return res.sendStatus(200);
     });
 

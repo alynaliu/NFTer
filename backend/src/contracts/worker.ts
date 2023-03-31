@@ -3,7 +3,7 @@ import { ethers, AlchemyProvider, Log } from 'ethers'
 import Web3Utils from 'web3-utils'
 
 import NFTer from './NFTer.json'
-import { Listings, PendingListings } from '../models/listing'
+import { ArchivedListings, Listings, PendingListings } from '../models/listing'
 import { ArchivedRentals, PendingRentals, Rentals } from '../models/rental'
 
 dotenv.config();
@@ -73,6 +73,18 @@ export function BlockchainWorker()
                 listing.available = true;
                 await listing.save();
         });
+
+        contract.on('ReturnedERC721NFT', async (contractAddress: string, to: string, tokenId: number, log: Log) => {
+                const listing = await Listings.findOne({
+                        ownerPublicAddress: to,
+                        contractAddress: contractAddress,
+                        tokenID: tokenId
+                });
+
+                const archivedListing = new ArchivedListings(listing.toJSON());
+                await archivedListing.save();
+                await listing.remove();
+        });
 }
 
 export async function BlockchainGetTime()
@@ -98,6 +110,7 @@ export async function BlockchainRentNFT(contractAddress: string, tokenId: number
 
 export async function BlockchainReturnNFT(contractAddress: string, tokenId: number)
 {
+        //Only do this if no active rentals.
         return await contract.returnNFT(contractAddress, tokenId);
 }
 
