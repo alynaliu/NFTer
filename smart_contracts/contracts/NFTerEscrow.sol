@@ -66,34 +66,26 @@ contract NFTerEscrow is Ownable, IERC721Receiver
         IERC4907(_metadata.contractAddress).setUser(_metadata.tokenId, renterAddress, expires);
     }
 
-    function returnNFT() external onlyOwner returns (bool)
+    function returnNFT() external onlyOwner
     {
         uint256 currentTime = getTime();
-        if(currentTime > _rentalExpires)
-        {
-            IERC721(_metadata.contractAddress).safeTransferFrom(address(this), _metadata.owner, _metadata.tokenId);
-            parentInstance.childSelfDestructed(_metadata.contractAddress, _metadata.owner, _metadata.tokenId);
-            selfdestruct(payable(owner()));
-            return true;
-        }
-        return false;
+        require(currentTime > _rentalExpires, "Rental still active.");
+        IERC721(_metadata.contractAddress).safeTransferFrom(address(this), _metadata.owner, _metadata.tokenId);
+        parentInstance.childSelfDestructed(_metadata.contractAddress, _metadata.owner, _metadata.tokenId);
+        selfdestruct(payable(owner()));
     }
 
-    function releaseMoney(address depositor) external virtual onlyOwner returns (bool)
+    function releaseMoney(address depositor) external virtual onlyOwner
     {
         uint256 currentTime = getTime();
-        if(currentTime > _rentalExpires)
-        {
-            uint256 amount = _deposits[depositor];
-            _deposits[depositor] = 0;
-
-            uint256 commission = (amount * parentInstance.commission_amount()) / 100;
-            uint256 payment = amount - commission;
-            payable(_metadata.owner).sendValue(payment);
-            parentInstance.childPayedETH(depositor, _metadata.owner, payment);
-            return true;
-        }
-        return false;
+        require(currentTime > _rentalExpires, "Rental still active.");
+        uint256 amount = _deposits[depositor];
+        _deposits[depositor] = 0;
+        
+        uint256 commission = (amount * parentInstance.commission_amount()) / 100;
+        uint256 payment = amount - commission;
+        payable(_metadata.owner).sendValue(payment);
+        parentInstance.childPayedETH(depositor, _metadata.owner, payment);
     }
 
     function refundMoney(address payable payee) external onlyOwner

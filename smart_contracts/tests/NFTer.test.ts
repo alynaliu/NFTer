@@ -32,7 +32,7 @@ async function testRentNFT(){
 
 async function testReturnNFT(){
     console.log(await contract.payOwner(process.env.TESTNFT_CONTRACT, tokenId, ownerAddress));
-    console.log(await contract.returnNFT(process.env.TESTNFT_CONTRACT, tokenId, {gasLimit:30000}));    
+    console.log(await contract.returnNFT(process.env.TESTNFT_CONTRACT, tokenId));    
 }
 
 async function testGetters(){

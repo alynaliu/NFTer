@@ -68,18 +68,18 @@ contract NFTer is Ownable, IERC721Receiver
         escrow.rentNFT(renterAddress, expires);
     }
 
-    function returnNFT(address contractAddress, uint256 tokenId) external onlyOwner returns (bool) 
+    function returnNFT(address contractAddress, uint256 tokenId) external onlyOwner
     {
         require(address(escrows[contractAddress][tokenId]) != address(0), "Error: Escrow doesn't exist");
         NFTerEscrow escrow = escrows[contractAddress][tokenId];
-        return escrow.returnNFT();
+        escrow.returnNFT();
     }
 
-    function payOwner(address contractAddress, uint256 tokenId, address _to) external onlyOwner returns (bool)
+    function payOwner(address contractAddress, uint256 tokenId, address _to) external onlyOwner
     {
         require(address(escrows[contractAddress][tokenId]) != address(0), "Error: Escrow doesn't exist");
         NFTerEscrow escrow = escrows[contractAddress][tokenId];
-        return escrow.releaseMoney(_to);
+        escrow.releaseMoney(_to);
     }
 
     function refundRenter(address contractAddress, uint256 tokenId, address payable _to) external onlyOwner

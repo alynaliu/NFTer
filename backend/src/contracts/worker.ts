@@ -105,16 +105,16 @@ export async function BlockchainGetNFTDetails(escrow: string)
 
 export async function BlockchainRentNFT(contractAddress: string, tokenId: number, renterAddress: string,  expires: number)
 {
-        return await contract.rentNFT(contractAddress, tokenId, renterAddress, expires);
+        await contract.rentNFT(contractAddress, tokenId, renterAddress, expires);
 }
 
 export async function BlockchainReturnNFT(contractAddress: string, tokenId: number)
 {
         //Only do this if no active rentals.
-        return await contract.returnNFT(contractAddress, tokenId);
+        await contract.returnNFT(contractAddress, tokenId);
 }
 
 export async function BlockchainPayOwner(contractAddress: string, tokenId: number, _to: string)
 {
-        return await contract.payOwner(contractAddress, tokenId, _to);  
+        await contract.payOwner(contractAddress, tokenId, _to);
 }
