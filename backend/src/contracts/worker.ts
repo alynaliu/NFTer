@@ -15,7 +15,7 @@ const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, NFTer.abi, ac
 export function BlockchainWorker()
 {
         contract.on('EscrowReceivedERC721NFT', async (contractAddress: string, from: string, tokenId: bigint, escrow: string, event: ContractEventPayload) => {
-                const pendingListing = await PendingListings.findOne({transactionHash: event.log.transactionHash});
+                const pendingListing = await PendingListings.findOne({transactionHash: event.log.transactionHash.toLowerCase()});
                 if(pendingListing) {
                         console.log(`Event found pending listing for ${contractAddress} - tokenID ${tokenId}`)
                         const listing = new Listings(pendingListing.toJSON());
@@ -36,7 +36,7 @@ export function BlockchainWorker()
 
         contract.on('ReceivedETH', async (from: string, amount: bigint, escrow: string, event: ContractEventPayload) => {
                 //See if the backend already created a pending rental
-                const pendingRental = await PendingRentals.findOne({transactionHash: event.log.transactionHash});
+                const pendingRental = await PendingRentals.findOne({transactionHash: event.log.transactionHash.toLowerCase()});
                 if(pendingRental) {
                         console.log(`Event found pending rental from ${from} on escrow ${escrow}`)
                         const price = Number(amount) / Math.pow(10, 18);
