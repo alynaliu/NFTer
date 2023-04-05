@@ -39,7 +39,7 @@ contract NFTerEscrow is Ownable, IERC721Receiver
                 contractAddress: msg.sender,
                 tokenId: tokenId
             });
-            parentInstance.childReceivedERC721NFT(msg.sender, from, tokenId);
+            parentInstance.childReceivedERC721NFT(msg.sender, abi.decode(data, (address)), tokenId);
         }
         return IERC721Receiver.onERC721Received.selector;
     }
