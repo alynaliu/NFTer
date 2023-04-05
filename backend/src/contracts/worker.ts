@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import { ethers, AlchemyProvider, Log } from 'ethers'
+import { ethers, AlchemyProvider, ContractEventPayload } from 'ethers'
 import Web3Utils from 'web3-utils'
 
 import NFTer from './NFTer.json'
@@ -14,27 +14,31 @@ const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, NFTer.abi, ac
 
 export function BlockchainWorker()
 {
-        contract.on('EscrowReceivedERC721NFT', async (contractAddress: string, from: string, tokenId: number, escrow: string, log: Log) => {
-                const pendingListing = await PendingListings.findOne({transactionHash: log.transactionHash});
+        contract.on('EscrowReceivedERC721NFT', async (contractAddress: string, from: string, tokenId: number, escrow: string, event: ContractEventPayload) => {
+                const pendingListing = await PendingListings.findOne({transactionHash: event.log.transactionHash});
                 if(pendingListing) {
+                        console.log(`Event found pending listing for ${contractAddress} - tokenID ${tokenId}`)
                         const listing = new Listings(pendingListing.toJSON());
                         await listing.save();
                         await pendingListing.remove();
                 }
                 else {
+                        console.log(`Event couldn't find pending listing for ${contractAddress} - tokenID ${tokenId}`)
                         await new PendingListings({
                                 tokenID: Number(tokenId),
                                 contractAddress: contractAddress,
                                 ownerPublicAddress: from.toLowerCase(),
-                                transactionHash: log.transactionHash
+                                transactionHash: event.log.transactionHash,
+                                escrow: escrow
                         }).save();
                 }
         });
 
-        contract.on('ReceivedETH', async (from: string, amount: bigint, escrow: string, log: Log) => {
+        contract.on('ReceivedETH', async (from: string, amount: bigint, escrow: string, event: ContractEventPayload) => {
                 //See if the backend already created a pending rental
-                const pendingRental = await PendingRentals.findOne({transactionHash: log.transactionHash});
+                const pendingRental = await PendingRentals.findOne({transactionHash: event.log.transactionHash});
                 if(pendingRental) {
+                        console.log(`Event found pending rental from ${from} on escrow ${escrow}`)
                         const price = Number(amount) / Math.pow(10, 18);
                         if(price !== pendingRental.price) return;
 
@@ -55,16 +59,17 @@ export function BlockchainWorker()
                         await contract.rentNFT(listing.contractAddress, listing.tokenID, rental.renterPublicAddress, expiry);
                 }
                 else {
+                        console.log(`Event couldn't find pending rental from ${from} on escrow ${escrow}`)
                         const price = Number(amount) / Math.pow(10, 18);
                         await new PendingRentals({
                                 renterPublicAddress: from.toLowerCase(),
-                                transactionHash: log.transactionHash,
+                                transactionHash: event.log.transactionHash,
                                 price: price
                         }).save();
                 }
         });
 
-        contract.on('PayedETH', async (renter: string, owner: string, amount: bigint, escrow: string, log: Log) => {
+        contract.on('PayedETH', async (renter: string, owner: string, amount: bigint, escrow: string, event: ContractEventPayload) => {
                 const [contractAddress, tokenId] = await BlockchainGetNFTDetails(escrow);
                 const listing = await Listings.findOne({
                         ownerPublicAddress: owner,
@@ -84,7 +89,7 @@ export function BlockchainWorker()
                 await listing.save();
         });
 
-        contract.on('ReturnedERC721NFT', async (contractAddress: string, to: string, tokenId: number, log: Log) => {
+        contract.on('ReturnedERC721NFT', async (contractAddress: string, to: string, tokenId: number, event: ContractEventPayload) => {
                 const listing = await Listings.findOne({
                         ownerPublicAddress: to,
                         contractAddress: contractAddress,

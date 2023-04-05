@@ -51,6 +51,10 @@ const Schema = new mongoose.Schema({
     transactionHash: {
         type: String,
         required: true
+    },
+    escrow: {
+        type: String,
+        required: false
     }
 })
 

@@ -41,13 +41,8 @@ export module NFT {
     router.post('/listing', verifySignature, async (req: Request, res: Response) => {
         const { publicAddress } = req.query;
         const { tokenID, contractAddress, rentalRate, maxRentalPeriod, transactionHash } = req.body;
-    
-        const verifiedHolder = await verifyNFTHolder(publicAddress as string, contractAddress, tokenID);
 
-        if(verifiedHolder === false)
-            return res.sendStatus(401);
-
-        const pendingListing = await PendingListings.findOne({transactionHash: transactionHash});
+        const pendingListing = await PendingListings.findOne({contractAddress: contractAddress, tokenID: tokenID});
         //Already got it from the smart contract
         const nftMetadata = await getNFTMetadata(contractAddress, tokenID);
         if(pendingListing) {
