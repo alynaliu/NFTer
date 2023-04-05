@@ -8,7 +8,7 @@ const Schema = new mongoose.Schema({
     },
     name: {
         type: String,
-        required: true
+        required: false
     },
     tokenID: {
         type: Number,
@@ -20,7 +20,7 @@ const Schema = new mongoose.Schema({
     },
     tokenType: {
         type: String,
-        required: true
+        required: false
     },
     contractAddress: {
         type: String,
@@ -41,11 +41,11 @@ const Schema = new mongoose.Schema({
     },
     rentalRate: {
         type: Number,
-        required: true
+        required: false
     },
     maxRentalPeriod: {
         type: Number,
-        required: true,
+        required: false,
         default: 30
     },
     transactionHash: {

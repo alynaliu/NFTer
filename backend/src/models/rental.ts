@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 const Schema = new mongoose.Schema({
     listingID: {
         type: String,
-        required: true
+        required: false
     },
     rentedFrom: {
         type: Date,
@@ -15,7 +15,7 @@ const Schema = new mongoose.Schema({
     },
     days: {
         type: Number,
-        required: true
+        required: false
     },
     renterPublicAddress: {
         type: String,

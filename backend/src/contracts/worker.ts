@@ -16,11 +16,19 @@ export function BlockchainWorker()
 {
         contract.on('EscrowReceivedERC721NFT', async (contractAddress: string, from: string, tokenId: number, escrow: string, log: Log) => {
                 const pendingListing = await PendingListings.findOne({transactionHash: log.transactionHash});
-                if(!pendingListing) return;
-                        
-                const listing = new Listings(pendingListing.toJSON());
-                await listing.save();
-                await pendingListing.remove();
+                if(pendingListing) {
+                        const listing = new Listings(pendingListing.toJSON());
+                        await listing.save();
+                        await pendingListing.remove();
+                }
+                else {
+                        await new PendingListings({
+                                tokenID: Number(tokenId),
+                                contractAddress: contractAddress,
+                                ownerPublicAddress: from.toLowerCase(),
+                                transactionHash: log.transactionHash
+                        }).save();
+                }
         });
 
         contract.on('ReceivedETH', async (from: string, amount: bigint, escrow: string, log: Log) => {

@@ -47,19 +47,34 @@ export module NFT {
         if(verifiedHolder === false)
             return res.sendStatus(401);
 
+        const pendingListing = await PendingListings.findOne({transactionHash: transactionHash});
+        //Already got it from the smart contract
         const nftMetadata = await getNFTMetadata(contractAddress, tokenID);
-        await new PendingListings({
-            name: nftMetadata.metadata.name,
-            tokenID: tokenID,
-            imageUrl: nftMetadata.media[0].gateway,
-            tokenType: nftMetadata.id.tokenMetadata.tokenType,
-            contractAddress: contractAddress,
-            description: nftMetadata.metadata.description,
-            ownerPublicAddress: publicAddress,
-            rentalRate: rentalRate,
-            maxRentalPeriod: maxRentalPeriod,
-            transactionHash: transactionHash
-        }).save();
+        if(pendingListing) {
+            const listing = new Listings(pendingListing.toJSON());
+            listing.name = nftMetadata.metadata.name;
+            listing.imageUrl = nftMetadata.media[0].gateway;
+            listing.tokenType = nftMetadata.id.tokenMetadata.tokenType;
+            listing.description = nftMetadata.metadata.description;
+            listing.rentalRate = rentalRate;
+            listing.maxRentalPeriod = maxRentalPeriod;
+            await listing.save();
+            await pendingListing.remove();
+        }
+        else {
+            await new PendingListings({
+                name: nftMetadata.metadata.name,
+                tokenID: tokenID,
+                imageUrl: nftMetadata.media[0].gateway,
+                tokenType: nftMetadata.id.tokenMetadata.tokenType,
+                contractAddress: contractAddress,
+                description: nftMetadata.metadata.description,
+                ownerPublicAddress: publicAddress,
+                rentalRate: rentalRate,
+                maxRentalPeriod: maxRentalPeriod,
+                transactionHash: transactionHash
+            }).save();
+        }
 
         return res.sendStatus(200);
     });
