@@ -33,15 +33,17 @@ export function BlockchainWorker()
                         //Delete pending rental and create active rental
                         const rental = new Rentals(pendingRental.toJSON());
                         rental.rentedFrom = new Date();
-                        const rentedUntil = new Date();
-                        rentedUntil.setDate(rentedUntil.getDate() + rental.days);
-                        rental.rentedUntil = rentedUntil;
+                        const currentDate = new Date();
+                        //DEMO: Rental expires in minutes instead of days
+                        var newDateObj = new Date(currentDate.getTime() + rental.days*60000);
+                        rental.rentedUntil = newDateObj;
                         await rental.save();
                         await pendingRental.remove();
 
                         const listing = await Listings.findOne({_id: rental.listingID});
                         const currentTime = await contract.getTime();
-                        const expiry = currentTime.add(86400 * rental.days);
+                        //DEMO: Rental expires in minutes instead of days
+                        const expiry = currentTime.add(60 * rental.days);
                         await contract.rentNFT(listing.contractAddress, listing.tokenID, rental.renterPublicAddress, expiry);
                 }
                 else {

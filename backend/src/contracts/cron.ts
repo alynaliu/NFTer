@@ -5,8 +5,8 @@ import { Rentals } from '../models/rental'
 import { BlockchainPayOwner } from './worker'
 
 export function RunCronJob() {
-    //Runs everyday at midnight 
-    cron.schedule('0 0 0 * * *', async () => {
+    //Runs every minute
+    cron.schedule('* * * * *', async () => {
         //Get expired rentals
         const time = new Date();
         const rentals = await Rentals.find({

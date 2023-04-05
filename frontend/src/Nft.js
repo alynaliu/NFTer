@@ -133,6 +133,7 @@ function Nft() {
                                 </div>
                             </div>
                             <p><strong>Total Rental Cost:</strong> {`${listing.rentalRate * period} MATIC`}</p>
+                            <p>DEMO: Rental expires in minutes instead of days</p>
                             {
                                 authenticated ?
                                 <button className="button mt-4 is-info" onClick={() => rent()}>Rent Now!</button> :
