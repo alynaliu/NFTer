@@ -62,12 +62,12 @@ export module NFT {
                 tokenID: tokenID,
                 imageUrl: nftMetadata.media[0].gateway,
                 tokenType: nftMetadata.id.tokenMetadata.tokenType,
-                contractAddress: contractAddress,
+                contractAddress: contractAddress.toLowerCase(),
                 description: nftMetadata.metadata.description,
-                ownerPublicAddress: publicAddress,
+                ownerPublicAddress: (publicAddress as string).toLowerCase(),
                 rentalRate: rentalRate,
                 maxRentalPeriod: maxRentalPeriod,
-                transactionHash: transactionHash
+                transactionHash: transactionHash.toLowerCase()
             }).save();
         }
 
@@ -161,7 +161,7 @@ export module NFT {
                 listingID: listingID,
                 days: daysRentedFor,
                 renterPublicAddress: (publicAddress as string).toLowerCase(),
-                transactionHash: transactionHash,
+                transactionHash: transactionHash.toLowerCase(),
                 price: listing.rentalRate * daysRentedFor
             }).save();
         }

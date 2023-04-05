@@ -14,7 +14,7 @@ const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, NFTer.abi, ac
 
 export function BlockchainWorker()
 {
-        contract.on('EscrowReceivedERC721NFT', async (contractAddress: string, from: string, tokenId: number, escrow: string, event: ContractEventPayload) => {
+        contract.on('EscrowReceivedERC721NFT', async (contractAddress: string, from: string, tokenId: bigint, escrow: string, event: ContractEventPayload) => {
                 const pendingListing = await PendingListings.findOne({transactionHash: event.log.transactionHash});
                 if(pendingListing) {
                         console.log(`Event found pending listing for ${contractAddress} - tokenID ${tokenId}`)
@@ -26,9 +26,9 @@ export function BlockchainWorker()
                         console.log(`Event couldn't find pending listing for ${contractAddress} - tokenID ${tokenId}`)
                         await new PendingListings({
                                 tokenID: Number(tokenId),
-                                contractAddress: contractAddress,
+                                contractAddress: contractAddress.toLowerCase(),
                                 ownerPublicAddress: from.toLowerCase(),
-                                transactionHash: event.log.transactionHash,
+                                transactionHash: event.log.transactionHash.toLowerCase(),
                                 escrow: escrow
                         }).save();
                 }
@@ -63,22 +63,23 @@ export function BlockchainWorker()
                         const price = Number(amount) / Math.pow(10, 18);
                         await new PendingRentals({
                                 renterPublicAddress: from.toLowerCase(),
-                                transactionHash: event.log.transactionHash,
+                                transactionHash: event.log.transactionHash.toLowerCase(),
                                 price: price
                         }).save();
                 }
         });
 
         contract.on('PayedETH', async (renter: string, owner: string, amount: bigint, escrow: string, event: ContractEventPayload) => {
+                console.log(`Payed ETH to ${owner} from ${renter}`);
                 const [contractAddress, tokenId] = await BlockchainGetNFTDetails(escrow);
                 const listing = await Listings.findOne({
-                        ownerPublicAddress: owner,
-                        contractAddress: contractAddress,
-                        tokenID: tokenId
+                        ownerPublicAddress: owner.toLowerCase(),
+                        contractAddress: contractAddress.toLowerCase(),
+                        tokenID: Number(tokenId)
                 });
                 const rental = await Rentals.findOne({
                         listingID: listing._id,
-                        renterPublicAddress: renter
+                        renterPublicAddress: renter.toLowerCase()
                 })
 
                 const archivedRental = new ArchivedRentals(rental.toJSON());
@@ -89,11 +90,12 @@ export function BlockchainWorker()
                 await listing.save();
         });
 
-        contract.on('ReturnedERC721NFT', async (contractAddress: string, to: string, tokenId: number, event: ContractEventPayload) => {
+        contract.on('ReturnedERC721NFT', async (contractAddress: string, to: string, tokenId: bigint, event: ContractEventPayload) => {
+                console.log(`Returned NFT to ${to} from ${contractAddress} - tokenID ${tokenId}`);
                 const listing = await Listings.findOne({
-                        ownerPublicAddress: to,
-                        contractAddress: contractAddress,
-                        tokenID: tokenId
+                        ownerPublicAddress: to.toLowerCase(),
+                        contractAddress: contractAddress.toLowerCase(),
+                        tokenID: Number(tokenId)
                 });
 
                 const archivedListing = new ArchivedListings(listing.toJSON());
@@ -104,7 +106,8 @@ export function BlockchainWorker()
 
 export async function BlockchainGetTime()
 {
-        return await contract.getTime();
+        const time = await contract.getTime();
+        return time;
 }
 
 export async function BlockchainGetEscrowAddress(contractAddress: string, tokenId: number)
