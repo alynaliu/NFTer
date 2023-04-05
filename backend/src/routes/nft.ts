@@ -103,7 +103,7 @@ export module NFT {
         const listing = await Listings.findOne({ _id: listingID });
         if(!listing || listing?.ownerPublicAddress !== publicAddress) return res.sendStatus(401);
         //Listing must not have any active rentals
-        const rentals = await Rentals.find({ listingID: listingID })
+        const rentals = await Rentals.findOne({ listingID: listingID })
         if(rentals) return res.sendStatus(406);
 
         BlockchainReturnNFT(listing.contractAddress, listing.tokenID);
@@ -127,7 +127,7 @@ export module NFT {
         const { publicAddress } = req.query;
         const { listingID, daysRentedFor, transactionHash } = req.body;
 
-        const listing = await Listings.findOne({_id: listingID}, 'ownerPublicAddress available rentalRate maxRentalPeriod');
+        const listing = await Listings.findOne({_id: listingID}, 'ownerPublicAddress available rentalRate maxRentalPeriod contractAddress tokenID');
         if(!listing || listing.available == false || daysRentedFor > listing.maxRentalPeriod)
             return res.sendStatus(400);
         listing.available = false;
@@ -153,7 +153,7 @@ export module NFT {
 
             const currentTime = await BlockchainGetTime();
             //DEMO: Rental expires in minutes instead of days
-            const expiry = currentTime.add(60 * rental.days);
+            const expiry = Number(currentTime) + (60 * rental.days);
             await BlockchainRentNFT(listing.contractAddress, listing.tokenID, rental.renterPublicAddress, expiry);
         }
         else {
