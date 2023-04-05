@@ -42,7 +42,7 @@ export module NFT {
         const { publicAddress } = req.query;
         const { tokenID, contractAddress, rentalRate, maxRentalPeriod, transactionHash } = req.body;
 
-        const pendingListing = await PendingListings.findOne({contractAddress: contractAddress, tokenID: tokenID});
+        const pendingListing = await PendingListings.findOne({contractAddress: contractAddress.toLowerCase(), tokenID: tokenID});
         //Already got it from the smart contract
         const nftMetadata = await getNFTMetadata(contractAddress, tokenID);
         if(pendingListing) {
@@ -134,7 +134,7 @@ export module NFT {
         await listing.save();
         
         //See if the Blockchain worker already created a pending rental
-        const pendingRental = await PendingRentals.findOne({transactionHash: transactionHash});
+        const pendingRental = await PendingRentals.findOne({transactionHash: transactionHash.toLowerCase()});
         if(pendingRental) {
             const price = listing.rentalRate * daysRentedFor;
             if(price !== pendingRental.price) return;
